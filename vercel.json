@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "vite",
+  "name": "ontarget-psp-dashboard",
+  "env": {
+    "VITE_API_URL": {
+      "description": "API Gateway URL",
+      "placeholder": "https://api.ontarget-egy.com"
+    },
+    "VITE_SUPABASE_URL": {
+      "description": "Supabase Project URL",
+      "placeholder": "https://xxxx.supabase.co"
+    },
+    "VITE_SUPABASE_KEY": {
+      "description": "Supabase Anon Key",
+      "placeholder": "eyJhbGc..."
+    }
+  },
+  "regions": ["sfo1"],
+  "public": {
+    "VITE_API_URL": "https://api.ontarget-egy.com",
+    "VITE_SUPABASE_URL": "https://YOUR_PROJECT.supabase.co"
+  },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
