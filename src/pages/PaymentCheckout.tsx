@@ -1,10 +1,18 @@
 import { useState, useEffect } from 'react'
-import { Copy, CheckCircle2, AlertCircle, Mail } from 'lucide-react'
+import { Copy, CheckCircle2, AlertCircle, Mail, Wallet } from 'lucide-react'
 
 interface PaymentProvider {
   name: string
   color: string
   ussd: string
+  icon: string
+}
+
+interface WalletOption {
+  id: string
+  provider: string
+  balance: number
+  color: string
   icon: string
 }
 
@@ -15,11 +23,19 @@ const providers: Record<string, PaymentProvider> = {
   '015': { name: 'WE Pay', color: '#4c0099', ussd: '*990*1*', icon: '💰' },
 }
 
+const mockWallets: WalletOption[] = [
+  { id: 'vodafone-egypt', provider: 'Vodafone Cash', balance: 500000, color: '#e60000', icon: '📱' },
+  { id: 'instapay-egypt', provider: 'InstaPay', balance: 250000, color: '#0066cc', icon: '💳' },
+  { id: 'bank-egypt', provider: 'Commercial Bank', balance: 750000, color: '#1a5490', icon: '🏦' },
+  { id: 'stripe-intl', provider: 'Stripe', balance: 150000, color: '#635bff', icon: '💎' },
+]
+
 export default function PaymentCheckout() {
   const [phone, setPhone] = useState('')
   const [amount, setAmount] = useState('')
   const [email, setEmail] = useState('')
   const [merchantName, setMerchantName] = useState('')
+  const [selectedWallet, setSelectedWallet] = useState<WalletOption | null>(null)
   const [provider, setProvider] = useState<PaymentProvider | null>(null)
   const [showResult, setShowResult] = useState(false)
   const [ussdCode, setUssdCode] = useState('')
@@ -27,6 +43,7 @@ export default function PaymentCheckout() {
   const [loading, setLoading] = useState(false)
   const [copied, setCopied] = useState(false)
   const [transactionId, setTransactionId] = useState('')
+  const [walletBalance, setWalletBalance] = useState(0)
 
   useEffect(() => {
     const prefix = phone.substring(0, 3)
@@ -47,6 +64,17 @@ export default function PaymentCheckout() {
       return
     }
 
+    if (!selectedWallet) {
+      alert('Please select a wallet to deduct payment from')
+      return
+    }
+
+    const paymentAmount = parseFloat(amount)
+    if (paymentAmount > selectedWallet.balance) {
+      alert(`Insufficient balance. Wallet has ${(selectedWallet.balance / 1000).toFixed(0)}K`)
+      return
+    }
+
     if (!provider) {
       alert('This provider is not supported')
       return
@@ -64,6 +92,10 @@ export default function PaymentCheckout() {
       const txnId = generateTransactionId()
       setTransactionId(txnId)
 
+      // Deduct from selected wallet
+      const newBalance = selectedWallet.balance - paymentAmount
+      setWalletBalance(newBalance)
+
       // Generate USSD code
       const ussd = `${provider.ussd}${phone}*${amount}#`
       setUssdCode(ussd)
@@ -78,7 +110,9 @@ export default function PaymentCheckout() {
         contactName: merchantName,
         email: email,
         phone: phone,
-        amount: parseFloat(amount),
+        amount: paymentAmount,
+        walletProvider: selectedWallet.provider,
+        walletBalance: newBalance,
         provider: provider.name,
         paymentDate: new Date().toLocaleDateString(),
       })
@@ -113,11 +147,13 @@ export default function PaymentCheckout() {
     setAmount('')
     setEmail('')
     setMerchantName('')
+    setSelectedWallet(null)
     setProvider(null)
     setShowResult(false)
     setUssdCode('')
     setQrCode('')
     setTransactionId('')
+    setWalletBalance(0)
   }
 
   return (
@@ -159,11 +195,42 @@ export default function PaymentCheckout() {
               </div>
             </div>
 
+            {/* Wallet Selection */}
+            <div>
+              <label className="block text-sm font-semibold text-text-secondary mb-2">
+                <Wallet size={16} className="inline mr-1" /> Select Payment Wallet
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                {mockWallets.map((wallet) => (
+                  <button
+                    key={wallet.id}
+                    onClick={() => setSelectedWallet(wallet)}
+                    className={`p-4 rounded-xl border-2 transition-all text-left ${
+                      selectedWallet?.id === wallet.id
+                        ? 'border-accent-blue bg-accent-blue/10'
+                        : 'border-white/[0.08] hover:border-white/[0.15] bg-apple-gray5'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-2xl">{wallet.icon}</span>
+                      {selectedWallet?.id === wallet.id && (
+                        <CheckCircle2 size={18} className="text-accent-blue" />
+                      )}
+                    </div>
+                    <div className="text-sm font-semibold text-text-primary">{wallet.provider}</div>
+                    <div className="text-xs text-text-secondary mt-1">
+                      {(wallet.balance / 1000).toFixed(0)}K EGP
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Phone & Amount */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-text-secondary mb-2">
-                  Phone Number
+                  Recipient Phone Number
                 </label>
                 <input
                   type="tel"
@@ -193,6 +260,11 @@ export default function PaymentCheckout() {
                   placeholder="0.00"
                   className="input w-full text-lg font-bold text-center"
                 />
+                {selectedWallet && (
+                  <div className="mt-2 text-xs text-text-secondary">
+                    Available: {(selectedWallet.balance / 1000).toFixed(0)}K EGP
+                  </div>
+                )}
               </div>
             </div>
 
@@ -206,7 +278,7 @@ export default function PaymentCheckout() {
             {/* Submit Button */}
             <button
               onClick={handlePayment}
-              disabled={loading || !phone || !amount || !email || !merchantName}
+              disabled={loading || !phone || !amount || !email || !merchantName || !selectedWallet}
               className="w-full btn flex items-center justify-center gap-2 disabled:opacity-50"
               style={{
                 background: provider?.color || '#007AFF',
@@ -248,7 +320,17 @@ export default function PaymentCheckout() {
                   <span className="font-semibold text-accent-blue">{amount} EGP</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-text-secondary">Provider:</span>
+                  <span className="text-text-secondary">Payment Wallet:</span>
+                  <span className="font-semibold text-text-primary flex items-center gap-2">
+                    <span>{selectedWallet?.icon}</span> {selectedWallet?.provider}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-text-secondary">Remaining Balance:</span>
+                  <span className="font-semibold text-accent-green">{(walletBalance / 1000).toFixed(0)}K EGP</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-text-secondary">Recipient Provider:</span>
                   <span className="font-semibold" style={{ color: provider?.color }}>
                     {provider?.icon} {provider?.name}
                   </span>
