@@ -1,0 +1,117 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Syne:wght@700;800&family=Outfit:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-gradient-to-br from-dark-bg via-slate-900 to-dark-elevation text-text-primary font-outfit;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body::before {
+    content: '';
+    @apply fixed inset-0 pointer-events-none z-0;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(0, 217, 255, 0.08) 0%, transparent 30%),
+      radial-gradient(circle at 80% 60%, rgba(255, 215, 0, 0.06) 0%, transparent 35%),
+      radial-gradient(circle at 50% 80%, rgba(16, 185, 129, 0.05) 0%, transparent 40%);
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-gradient-to-br from-dark-elevation/70 to-dark-surface/50 backdrop-blur-xl border border-white/[0.08];
+  }
+
+  .card {
+    @apply glass rounded-2xl p-7 transition-all duration-300 shadow-glass hover:border-primary/40 hover:shadow-lg hover:-translate-y-1.5;
+  }
+
+  .btn {
+    @apply px-6 py-2.5 bg-gradient-to-r from-primary to-cyan-400 text-dark-bg font-bold text-sm rounded-xl cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-2.5 bg-white/[0.08] text-primary font-bold text-sm rounded-xl cursor-pointer transition-all duration-200 border border-white/[0.15] hover:bg-white/[0.12];
+  }
+
+  .section-title {
+    @apply font-syne text-2xl font-extrabold text-text-primary mb-6 flex items-center gap-4;
+  }
+
+  .section-title::before {
+    content: '';
+    @apply w-1 h-7 bg-gradient-to-b from-primary to-accent rounded;
+  }
+
+  .input {
+    @apply w-full px-3 py-2.5 bg-dark-elevation/70 border border-white/[0.15] rounded-xl text-text-primary font-outfit transition-all duration-200 focus:outline-none focus:border-primary/60 focus:bg-dark-elevation/90 focus:shadow-lg focus:shadow-primary/20;
+  }
+
+  .table-row {
+    @apply border-b border-white/[0.08] transition-colors duration-200 hover:bg-primary/[0.04];
+  }
+
+  .badge {
+    @apply inline-block px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wide;
+  }
+
+  .badge-success {
+    @apply bg-gradient-to-r from-success/15 to-success/10 text-success border border-success/20;
+  }
+
+  .badge-pending {
+    @apply bg-gradient-to-r from-warning/15 to-warning/10 text-warning border border-warning/20;
+  }
+
+  .badge-error {
+    @apply bg-gradient-to-r from-error/15 to-error/10 text-error border border-error/20;
+  }
+}
+
+/* Animations */
+@keyframes slideDownFade {
+  from {
+    @apply opacity-0 -translate-y-2;
+  }
+  to {
+    @apply opacity-100 translate-y-0;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    @apply opacity-0 -translate-x-4;
+  }
+  to {
+    @apply opacity-100 translate-x-0;
+  }
+}
+
+.animate-slide-down {
+  animation: slideDownFade 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.animate-slide-left {
+  animation: slideInLeft 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  @apply w-2;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-dark-surface;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-primary/30 rounded-full hover:bg-primary/50;
+}
