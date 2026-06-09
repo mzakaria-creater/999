@@ -1,205 +1,141 @@
 import { useState, useEffect } from 'react'
-import { Copy, CheckCircle2, AlertCircle, Mail, Wallet, MapPin, Globe } from 'lucide-react'
+import { Copy, CheckCircle2, AlertCircle, Upload, Clock, QrCode, Zap } from 'lucide-react'
+import { useLanguage } from '@/context/LanguageContext'
 
-interface PaymentProvider {
+interface Provider {
+  id: string
   name: string
-  color: string
-  ussd: string
-  icon: string
-}
-
-interface WalletOption {
-  id: string
-  provider: string
-  balance: number
-  color: string
-  icon: string
-}
-
-interface LocationOption {
-  id: string
-  city: string
-  country: string
   code: string
-  flag: string
-  lat: number
-  lng: number
+  color: string
+  icon: string
+  ussdPrefix: string
+  instructions: string[]
 }
 
-const providers: Record<string, PaymentProvider> = {
-  '010': { name: 'Vodafone Cash', color: '#e60000', ussd: '*9*7*', icon: '📱' },
-  '011': { name: 'Etisalat Cash', color: '#719917', ussd: '*777*1*', icon: '💳' },
-  '012': { name: 'Orange Money', color: '#ff7900', ussd: '#7115*1*', icon: '🟠' },
-  '015': { name: 'WE Pay', color: '#4c0099', ussd: '*990*1*', icon: '💰' },
+interface Wallet {
+  id: string
+  name: string
+  balance: number
+  icon: string
+  color: string
 }
 
-const mockWallets: WalletOption[] = [
-  { id: 'vodafone-egypt', provider: 'Vodafone Cash', balance: 500000, color: '#e60000', icon: '📱' },
-  { id: 'instapay-egypt', provider: 'InstaPay', balance: 250000, color: '#0066cc', icon: '💳' },
-  { id: 'bank-egypt', provider: 'Commercial Bank', balance: 750000, color: '#1a5490', icon: '🏦' },
-  { id: 'stripe-intl', provider: 'Stripe', balance: 150000, color: '#635bff', icon: '💎' },
+const providers: Provider[] = [
+  {
+    id: 'vodafone',
+    name: 'Vodafone Cash',
+    code: '010',
+    color: '#e60000',
+    icon: '📱',
+    ussdPrefix: '*9*7*',
+    instructions: ['Dial the USSD code on your phone', 'Confirm the amount in the prompt', 'Enter your PIN to complete'],
+  },
+  {
+    id: 'etisalat',
+    name: 'Etisalat Cash',
+    code: '011',
+    color: '#719917',
+    icon: '💳',
+    ussdPrefix: '*777*1*',
+    instructions: ['Open Etisalat Cash app', 'Scan the QR code below', 'Confirm and enter your PIN'],
+  },
+  {
+    id: 'orange',
+    name: 'Orange Money',
+    code: '012',
+    color: '#ff7900',
+    icon: '🟠',
+    ussdPrefix: '#7115*1*',
+    instructions: ['Dial USSD code from your phone', 'Select payment option', 'Complete the transaction'],
+  },
+  {
+    id: 'we',
+    name: 'WE Pay',
+    code: '015',
+    color: '#4c0099',
+    icon: '💜',
+    ussdPrefix: '*990*1*',
+    instructions: ['Open WE Pay app or dial USSD', 'Scan the QR code', 'Confirm the payment'],
+  },
 ]
 
-const mockLocations: LocationOption[] = [
-  { id: 'cairo', city: 'Cairo', country: 'Egypt', code: 'EG', flag: '🇪🇬', lat: 30.0444, lng: 31.2357 },
-  { id: 'alexandria', city: 'Alexandria', country: 'Egypt', code: 'EG', flag: '🇪🇬', lat: 31.2001, lng: 29.9187 },
-  { id: 'dubai', city: 'Dubai', country: 'UAE', code: 'AE', flag: '🇦🇪', lat: 25.2048, lng: 55.2708 },
-  { id: 'abudhabi', city: 'Abu Dhabi', country: 'UAE', code: 'AE', flag: '🇦🇪', lat: 24.4539, lng: 54.3773 },
-  { id: 'riyadh', city: 'Riyadh', country: 'KSA', code: 'SA', flag: '🇸🇦', lat: 24.7136, lng: 46.6753 },
-  { id: 'jeddah', city: 'Jeddah', country: 'KSA', code: 'SA', flag: '🇸🇦', lat: 21.5433, lng: 39.1727 },
+const wallets: Wallet[] = [
+  { id: '1', name: 'Vodafone Cash', balance: 500000, icon: '📱', color: '#e60000' },
+  { id: '2', name: 'InstaPay', balance: 250000, icon: '💳', color: '#0066cc' },
+  { id: '3', name: 'Commercial Bank', balance: 750000, icon: '🏦', color: '#1a5490' },
+  { id: '4', name: 'Stripe', balance: 150000, icon: '💎', color: '#635bff' },
 ]
 
-const merchantWalletAssignments: Record<string, WalletOption> = {
-  'Ahmed Electronics': mockWallets[0], // Vodafone
-  'Cairo Retail': mockWallets[1], // InstaPay
-  'Emirates Foods': mockWallets[2], // Commercial Bank
-  'Dubai Trade': mockWallets[3], // Stripe
-}
-
-type TransactionType = 'deposit' | 'payout'
+const merchants = ['Ahmed Electronics', 'Cairo Retail', 'Emirates Foods', 'Dubai Trade']
 
 export default function PaymentCheckout() {
-  const [transactionType, setTransactionType] = useState<TransactionType>('deposit')
-  const [phone, setPhone] = useState('')
+  const { t, language, dir } = useLanguage()
+  const [transactionType, setTransactionType] = useState<'deposit' | 'payout'>('deposit')
+  const [selectedProvider, setSelectedProvider] = useState<Provider | null>(providers[0])
+  const [selectedWallet, setSelectedWallet] = useState<Wallet | null>(wallets[0])
   const [amount, setAmount] = useState('')
   const [email, setEmail] = useState('')
   const [merchantName, setMerchantName] = useState('')
-  const [selectedWallet, setSelectedWallet] = useState<WalletOption | null>(null)
-  const [selectedLocation, setSelectedLocation] = useState<LocationOption | null>(mockLocations[0])
-  const [provider, setProvider] = useState<PaymentProvider | null>(null)
+  const [phone, setPhone] = useState('')
   const [showResult, setShowResult] = useState(false)
-  const [ussdCode, setUssdCode] = useState('')
-  const [qrCode, setQrCode] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [copied, setCopied] = useState(false)
   const [transactionId, setTransactionId] = useState('')
-  const [walletBalance, setWalletBalance] = useState(0)
-  const [assignedMerchantWallet, setAssignedMerchantWallet] = useState<WalletOption | null>(null)
+  const [ussdCode, setUssdCode] = useState('')
+  const [qrUrl, setQrUrl] = useState('')
+  const [timeLeft, setTimeLeft] = useState(900)
+  const [proofFile, setProofFile] = useState<File | null>(null)
+  const [copied, setCopied] = useState(false)
+
+  const provider = selectedProvider!
 
   useEffect(() => {
-    const prefix = phone.substring(0, 3)
-    if (providers[prefix]) {
-      setProvider(providers[prefix])
-    } else {
-      setProvider(null)
+    if (phone) {
+      const prefix = phone.substring(0, 3)
+      const found = providers.find((p) => p.code === prefix)
+      if (found) setSelectedProvider(found)
     }
   }, [phone])
 
-  const generateTransactionId = () => {
-    return `TXN-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
-  }
-
-  const handlePayment = async () => {
-    if (!phone || phone.length !== 11 || !amount) {
-      alert('Please enter a valid phone number and amount')
-      return
-    }
-
-    if (!email || !merchantName) {
-      alert('Please enter email and merchant name for invoice')
-      return
-    }
-
-    const paymentAmount = parseFloat(amount)
-
-    // DEPOSIT: Uses merchant's assigned wallet (no client wallet selection/deduction needed)
-    if (transactionType === 'deposit') {
-      const merchantWallet = merchantWalletAssignments[merchantName]
-      if (!merchantWallet) {
-        alert(`No wallet assigned to merchant: ${merchantName}`)
-        return
-      }
-      setAssignedMerchantWallet(merchantWallet)
-    }
-
-    // PAYOUT: Requires client wallet selection and balance validation
-    if (transactionType === 'payout') {
-      if (!selectedWallet) {
-        alert('Please select a wallet to deduct payment from')
-        return
-      }
-
-      if (paymentAmount > selectedWallet.balance) {
-        alert(`Insufficient balance. Wallet has ${(selectedWallet.balance / 1000).toFixed(0)}K`)
-        return
-      }
-    }
-
-    if (!provider) {
-      alert('This provider is not supported')
-      return
-    }
-
-    setLoading(true)
-
-    try {
-      // Generate transaction ID
-      const txnId = generateTransactionId()
-      setTransactionId(txnId)
-
-      // Handle wallet deduction based on transaction type
-      if (transactionType === 'payout' && selectedWallet) {
-        const newBalance = selectedWallet.balance - paymentAmount
-        setWalletBalance(newBalance)
-      }
-
-      // Generate USSD code
-      const ussd = `${provider.ussd}${phone}*${amount}#`
-      setUssdCode(ussd)
-
-      // Generate QR code
-      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(ussd)}`
-      setQrCode(qrUrl)
-
-      // Prepare invoice data based on transaction type
-      const invoiceData = {
-        transactionId: txnId,
-        contactName: merchantName,
-        email: email,
-        phone: phone,
-        amount: paymentAmount,
-        transactionType: transactionType,
-        provider: provider.name,
-        paymentDate: new Date().toLocaleDateString(),
-      }
-
-      if (transactionType === 'deposit') {
-        // DEPOSIT: Use merchant's assigned wallet
-        Object.assign(invoiceData, {
-          walletProvider: assignedMerchantWallet?.provider,
-          walletUsed: 'Merchant Assigned Wallet',
-          walletAction: 'CREDIT (receives funds)',
+  useEffect(() => {
+    if (showResult) {
+      const timer = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer)
+            return 0
+          }
+          return prev - 1
         })
-      } else {
-        // PAYOUT: Deduct from client wallet
-        Object.assign(invoiceData, {
-          walletProvider: selectedWallet?.provider,
-          walletUsed: 'Client Wallet',
-          walletBalance: walletBalance,
-          walletAction: 'DEBIT (sends funds)',
-        })
-      }
-
-      // Send email invoice
-      await sendEmailInvoice(invoiceData)
-
-      setShowResult(true)
-    } catch (error) {
-      console.error('Payment error:', error)
-      alert('Error processing payment')
-    } finally {
-      setLoading(false)
+      }, 1000)
+      return () => clearInterval(timer)
     }
-  }
+  }, [showResult])
 
-  const sendEmailInvoice = async (invoiceData: any) => {
-    // Simulate email sending (in production, call backend API)
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        console.log('Email invoice sent to:', invoiceData.email, invoiceData)
-        resolve(true)
-      }, 500)
-    })
+  const handlePayment = () => {
+    if (!amount || parseFloat(amount) <= 0) {
+      alert('Please enter a valid amount')
+      return
+    }
+
+    if (transactionType === 'payout' && !selectedWallet) {
+      alert('Please select a wallet')
+      return
+    }
+
+    if (!merchantName || !email) {
+      alert('Please enter merchant name and email')
+      return
+    }
+
+    const txId = `TXN-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
+    setTransactionId(txId)
+
+    const code = `${provider.ussdPrefix}${phone}*${parseFloat(amount).toFixed(0)}#`
+    setUssdCode(code)
+
+    const qr = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(code)}`
+    setQrUrl(qr)
+
+    setShowResult(true)
   }
 
   const copyToClipboard = () => {
@@ -208,416 +144,358 @@ export default function PaymentCheckout() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  const resetForm = () => {
-    setPhone('')
-    setAmount('')
-    setEmail('')
-    setMerchantName('')
-    setSelectedWallet(null)
-    setSelectedLocation(mockLocations[0])
-    setProvider(null)
-    setShowResult(false)
-    setUssdCode('')
-    setQrCode('')
-    setTransactionId('')
-    setWalletBalance(0)
-    setAssignedMerchantWallet(null)
-  }
+  const minutes = Math.floor(timeLeft / 60)
+  const seconds = timeLeft % 60
 
-  return (
-    <div className="pb-8 px-4 md:px-8 max-w-3xl mx-auto w-full">
-      <div className="space-y-8">
-        <div>
-          <h1 className="font-apple text-4xl font-bold text-text-primary mb-2">USSD Payment</h1>
-          <p className="text-text-secondary">Fast & secure payment via USSD</p>
+  if (showResult) {
+    return (
+      <div className="p-6 space-y-6" dir={dir}>
+        {/* Header */}
+        <div className="glossy-card rounded-2xl p-8" style={{ borderColor: `${provider.color}40`, backgroundColor: `${provider.color}05` }}>
+          <div className="flex items-center gap-4 mb-4">
+            <span className="text-5xl">{provider.icon}</span>
+            <div>
+              <h1 className="text-4xl font-bold text-text-primary">{provider.name} Checkout</h1>
+              <p className="text-text-secondary mt-1">Secure Payment Gateway</p>
+            </div>
+          </div>
         </div>
 
-        {!showResult ? (
-          // Payment Form
-          <div className="apple-surface rounded-2xl p-8 space-y-6">
-            {/* Transaction Type Selector */}
+        {/* Timer Banner */}
+        <div className="glossy-card rounded-2xl p-6 flex items-center justify-between" style={{ borderColor: `${provider.color}40` }}>
+          <div className="flex items-center gap-3">
+            <Clock size={24} style={{ color: provider.color }} />
             <div>
-              <label className="block text-sm font-semibold text-text-secondary mb-3">
-                Transaction Type
-              </label>
-              <div className="grid grid-cols-2 gap-4">
-                <button
-                  onClick={() => setTransactionType('deposit')}
-                  className={`p-4 rounded-xl border-2 transition-all text-left font-semibold ${
-                    transactionType === 'deposit'
-                      ? 'border-accent-green bg-accent-green/10 text-accent-green'
-                      : 'border-white/[0.08] hover:border-white/[0.15] bg-apple-gray5 text-text-secondary'
-                  }`}
-                >
-                  📥 DEPOSIT
-                  <p className="text-xs text-current opacity-75 mt-1">Merchant receives funds</p>
-                </button>
-                <button
-                  onClick={() => setTransactionType('payout')}
-                  className={`p-4 rounded-xl border-2 transition-all text-left font-semibold ${
-                    transactionType === 'payout'
-                      ? 'border-accent-orange bg-accent-orange/10 text-accent-orange'
-                      : 'border-white/[0.08] hover:border-white/[0.15] bg-apple-gray5 text-text-secondary'
-                  }`}
-                >
-                  📤 PAYOUT
-                  <p className="text-xs text-current opacity-75 mt-1">You send funds</p>
-                </button>
-              </div>
+              <p className="text-text-secondary text-sm font-semibold">Payment Session Expires In</p>
+              <p className="text-2xl font-bold text-text-primary">
+                {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+              </p>
             </div>
+          </div>
+          <div className="w-32 h-2 bg-white/[0.05] rounded-full overflow-hidden">
+            <div
+              className="h-full transition-all"
+              style={{ width: `${(timeLeft / 900) * 100}%`, backgroundColor: provider.color }}
+            />
+          </div>
+        </div>
 
-            {/* Location Selection */}
-            <div>
-              <label className="block text-sm font-semibold text-text-secondary mb-3">
-                <MapPin size={16} className="inline mr-1" /> Transaction Location
-              </label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {mockLocations.map((location) => (
-                  <button
-                    key={location.id}
-                    onClick={() => setSelectedLocation(location)}
-                    className={`p-3 rounded-xl border-2 transition-all text-left ${
-                      selectedLocation?.id === location.id
-                        ? 'border-accent-blue bg-accent-blue/10'
-                        : 'border-white/[0.08] hover:border-white/[0.15] bg-apple-gray5'
-                    }`}
-                  >
-                    <div className="text-2xl mb-2">{location.flag}</div>
-                    <div className="text-sm font-semibold text-text-primary">{location.city}</div>
-                    <div className="text-xs text-text-secondary">{location.country}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Merchant Info */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-text-secondary mb-2">
-                  Merchant Name
-                </label>
-                <input
-                  type="text"
-                  value={merchantName}
-                  onChange={(e) => setMerchantName(e.target.value)}
-                  placeholder="Your Business"
-                  className="input w-full"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-text-secondary mb-2">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="invoice@business.com"
-                  className="input w-full"
-                />
-              </div>
-            </div>
-
-            {/* Wallet Section - Different based on transaction type */}
-            {transactionType === 'deposit' ? (
-              // DEPOSIT: Show merchant's assigned wallet (read-only)
-              <div>
-                <label className="block text-sm font-semibold text-text-secondary mb-3">
-                  <Wallet size={16} className="inline mr-1" /> Merchant Assigned Wallet (Auto)
-                </label>
-                <div className="p-4 rounded-xl border-2 border-accent-green/30 bg-accent-green/10">
-                  {merchantWalletAssignments[merchantName] ? (
-                    <div>
-                      <div className="flex items-center gap-3 mb-3">
-                        <span className="text-2xl">{merchantWalletAssignments[merchantName].icon}</span>
-                        <div>
-                          <p className="font-semibold text-text-primary">{merchantWalletAssignments[merchantName].provider}</p>
-                          <p className="text-xs text-accent-green font-bold">
-                            Merchant receives: {parseFloat(amount || '0').toLocaleString()} EGP
-                          </p>
-                        </div>
-                      </div>
-                      <p className="text-xs text-text-secondary">Balance: {(merchantWalletAssignments[merchantName].balance / 1000).toFixed(0)}K EGP</p>
-                    </div>
-                  ) : (
-                    <p className="text-sm text-text-secondary">Enter merchant name to see assigned wallet</p>
-                  )}
-                </div>
-                <p className="text-xs text-accent-green mt-2">✓ No wallet balance deduction (merchant wallet receives credit)</p>
-              </div>
-            ) : (
-              // PAYOUT: Show client wallet selector for deduction
-              <div>
-                <label className="block text-sm font-semibold text-text-secondary mb-2">
-                  <Wallet size={16} className="inline mr-1" /> Select Wallet to Deduct From
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  {mockWallets.map((wallet) => (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Left Column */}
+          <div className="lg:col-span-7 space-y-6">
+            {/* Order Summary */}
+            <div className="glossy-card rounded-2xl p-6">
+              <h3 className="text-2xl font-bold text-text-primary mb-6">Order Summary</h3>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center pb-4 border-b border-white/[0.08]">
+                  <span className="text-text-secondary">Reference ID</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono font-bold text-text-primary">{transactionId}</span>
                     <button
-                      key={wallet.id}
-                      onClick={() => setSelectedWallet(wallet)}
-                      className={`p-4 rounded-xl border-2 transition-all text-left ${
-                        selectedWallet?.id === wallet.id
-                          ? 'border-accent-orange bg-accent-orange/10'
-                          : 'border-white/[0.08] hover:border-white/[0.15] bg-apple-gray5'
-                      }`}
+                      onClick={copyToClipboard}
+                      className="text-accent-blue hover:text-accent-blue/80 transition-colors"
                     >
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-2xl">{wallet.icon}</span>
-                        {selectedWallet?.id === wallet.id && (
-                          <CheckCircle2 size={18} className="text-accent-orange" />
-                        )}
-                      </div>
-                      <div className="text-sm font-semibold text-text-primary">{wallet.provider}</div>
-                      <div className="text-xs text-text-secondary mt-1">
-                        {(wallet.balance / 1000).toFixed(0)}K EGP
-                      </div>
+                      <Copy size={16} />
                     </button>
-                  ))}
+                  </div>
+                </div>
+                <div className="flex justify-between items-center pt-4">
+                  <span className="text-text-secondary text-lg">Total Amount</span>
+                  <span className="text-3xl font-bold" style={{ color: provider.color }}>
+                    EGP {parseFloat(amount).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Wallet Allocation */}
+            {transactionType === 'payout' && (
+              <div className="glossy-card rounded-2xl p-6">
+                <h3 className="text-2xl font-bold text-text-primary mb-4">Wallet Allocation</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-4 bg-white/[0.03] rounded-xl">
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">{selectedWallet?.icon}</span>
+                      <div>
+                        <p className="font-semibold text-text-primary">{selectedWallet?.name}</p>
+                        <p className="text-xs text-text-secondary">Deducted</p>
+                      </div>
+                    </div>
+                    <span className="font-bold text-text-primary">EGP {parseFloat(amount).toLocaleString()}</span>
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* Phone & Amount */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* Payment Instructions */}
+            <div className="glossy-card rounded-2xl p-6">
+              <h3 className="text-2xl font-bold text-text-primary mb-4">How to Complete Payment</h3>
+              <div className="space-y-4">
+                {provider.instructions.map((instruction, idx) => (
+                  <div key={idx} className="flex gap-4">
+                    <div
+                      className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold"
+                      style={{ backgroundColor: provider.color }}
+                    >
+                      {idx + 1}
+                    </div>
+                    <p className="text-text-secondary pt-1">{instruction}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Upload Proof */}
+            <div className="glossy-card rounded-2xl p-6">
+              <h3 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2">
+                <Upload size={20} /> Upload Proof of Payment
+              </h3>
+              <p className="text-text-secondary text-sm mb-4">Upload a screenshot of your transaction confirmation</p>
+              <label className="block border-2 border-dashed border-white/[0.08] rounded-xl p-8 text-center cursor-pointer hover:border-white/[0.15] transition-colors">
+                <div className="space-y-2">
+                  <QrCode size={32} className="mx-auto text-text-secondary opacity-50" />
+                  <p className="text-sm font-semibold text-text-primary">Click to upload or drag and drop</p>
+                  <p className="text-xs text-text-secondary">PNG, JPG up to 5MB</p>
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => setProofFile(e.target.files?.[0] || null)}
+                />
+              </label>
+              {proofFile && <p className="text-sm text-accent-green mt-2">✓ {proofFile.name}</p>}
+            </div>
+          </div>
+
+          {/* Right Column */}
+          <div className="lg:col-span-5 space-y-6 flex flex-col">
+            {/* QR Code */}
+            <div className="glossy-card rounded-2xl p-8 text-center" style={{ borderColor: `${provider.color}40` }}>
+              <h3 className="text-lg font-bold text-text-primary mb-2">Scan to Pay</h3>
+              <p className="text-text-secondary text-sm mb-6">Open your {provider.name} app and scan</p>
+              {qrUrl && (
+                <div className="relative inline-block mb-6">
+                  <div
+                    className="absolute inset-0 rounded-lg blur opacity-20"
+                    style={{ backgroundColor: provider.color }}
+                  />
+                  <img src={qrUrl} alt="Payment QR" className="w-64 h-64 rounded-lg relative" />
+                </div>
+              )}
+            </div>
+
+            {/* USSD Code */}
+            <div className="glossy-card rounded-2xl p-6">
+              <h3 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2">
+                <Zap size={20} /> USSD Code
+              </h3>
+              <p className="text-text-secondary text-sm mb-4">Dial this code on your phone:</p>
+              <div className="bg-white/[0.05] border border-white/[0.08] rounded-xl p-4 mb-4">
+                <p className="font-mono text-center font-bold text-text-primary text-lg break-all">{ussdCode}</p>
+              </div>
+              <button
+                onClick={copyToClipboard}
+                className="w-full bg-accent-blue text-white font-bold py-3 rounded-xl hover:brightness-110 transition-all flex items-center justify-center gap-2"
+              >
+                <Copy size={18} /> {copied ? 'Copied!' : 'Copy Code'}
+              </button>
+            </div>
+
+            {/* Action Button */}
+            <button className="w-full bg-accent-green text-white font-bold py-4 rounded-xl hover:brightness-110 transition-all flex items-center justify-center gap-2 text-lg">
+              <CheckCircle2 size={20} /> I Sent Payment
+            </button>
+
+            {/* Security Info */}
+            <div className="text-center text-xs text-text-secondary space-y-2">
+              <p>🔒 PCI-DSS Compliant</p>
+              <p>🛡️ SSL Encrypted</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="p-6 space-y-6" dir={dir}>
+      {/* Header */}
+      <div className="glossy-card rounded-2xl p-8">
+        <h1 className="text-4xl font-bold text-text-primary mb-2">Payment Checkout</h1>
+        <p className="text-text-secondary">Select your payment provider and enter details</p>
+      </div>
+
+      {/* Transaction Type */}
+      <div className="flex gap-4">
+        <button
+          onClick={() => setTransactionType('deposit')}
+          className={`flex-1 py-3 px-6 rounded-xl font-bold transition-all ${
+            transactionType === 'deposit'
+              ? 'bg-accent-green text-white'
+              : 'bg-white/[0.05] text-text-secondary hover:bg-white/[0.1]'
+          }`}
+        >
+          📥 Deposit
+        </button>
+        <button
+          onClick={() => setTransactionType('payout')}
+          className={`flex-1 py-3 px-6 rounded-xl font-bold transition-all ${
+            transactionType === 'payout'
+              ? 'bg-accent-orange text-white'
+              : 'bg-white/[0.05] text-text-secondary hover:bg-white/[0.1]'
+          }`}
+        >
+          📤 Payout
+        </button>
+      </div>
+
+      {/* Provider Selection */}
+      <div className="glossy-card rounded-2xl p-6">
+        <h3 className="text-xl font-bold text-text-primary mb-4">Select Payment Provider</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {providers.map((prov) => (
+            <button
+              key={prov.id}
+              onClick={() => setSelectedProvider(prov)}
+              className={`p-4 rounded-xl transition-all border-2 ${
+                selectedProvider?.id === prov.id
+                  ? 'border-white/[0.3] bg-white/[0.1]'
+                  : 'border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.06]'
+              }`}
+            >
+              <span className="text-3xl mb-2 block">{prov.icon}</span>
+              <p className="text-sm font-bold text-text-primary">{prov.name}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Form */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Left Column */}
+        <div className="space-y-6">
+          {/* Merchant Info */}
+          <div className="glossy-card rounded-2xl p-6">
+            <h3 className="text-lg font-bold text-text-primary mb-4">Merchant Details</h3>
+            <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-text-secondary mb-2">
-                  Recipient Phone Number
-                </label>
+                <label className="text-sm font-semibold text-text-secondary mb-2 block">Merchant Name</label>
+                <select
+                  value={merchantName}
+                  onChange={(e) => setMerchantName(e.target.value)}
+                  className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-text-primary focus:border-accent-blue focus:outline-none transition-colors"
+                >
+                  <option value="">Select Merchant</option>
+                  {merchants.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-semibold text-text-secondary mb-2 block">Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="merchant@example.com"
+                  className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-text-primary placeholder:text-text-tertiary focus:border-accent-blue focus:outline-none transition-colors"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Payment Details */}
+          <div className="glossy-card rounded-2xl p-6">
+            <h3 className="text-lg font-bold text-text-primary mb-4">Payment Details</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-semibold text-text-secondary mb-2 block">Phone Number</label>
                 <input
                   type="tel"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value.slice(0, 11))}
-                  placeholder="01XXXXXXXXX"
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="01012345678"
                   maxLength={11}
-                  className="input w-full text-lg font-bold text-center"
+                  className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-text-primary placeholder:text-text-tertiary focus:border-accent-blue focus:outline-none transition-colors"
                 />
-                {provider && (
-                  <div className="mt-2 flex items-center gap-2">
-                    <span className="text-2xl">{provider.icon}</span>
-                    <span className="text-sm font-semibold" style={{ color: provider.color }}>
-                      {provider.name}
-                    </span>
-                  </div>
-                )}
               </div>
               <div>
-                <label className="block text-sm font-semibold text-text-secondary mb-2">
-                  Amount (EGP)
-                </label>
+                <label className="text-sm font-semibold text-text-secondary mb-2 block">Amount (EGP)</label>
                 <input
                   type="number"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  placeholder="0.00"
-                  className="input w-full text-lg font-bold text-center"
+                  placeholder="1000"
+                  className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-text-primary placeholder:text-text-tertiary focus:border-accent-blue focus:outline-none transition-colors"
                 />
-                {selectedWallet && (
-                  <div className="mt-2 text-xs text-text-secondary">
-                    Available: {(selectedWallet.balance / 1000).toFixed(0)}K EGP
-                  </div>
-                )}
               </div>
             </div>
+          </div>
+        </div>
 
-            {/* Info */}
-            <div className="bg-accent-blue/10 border border-accent-blue/20 rounded-xl p-4">
-              <p className="text-sm text-text-secondary">
-                An invoice will be sent to <span className="font-semibold text-text-primary">{email || 'your email'}</span> with payment details and transaction ID.
-              </p>
+        {/* Right Column */}
+        <div className="space-y-6">
+          {/* Wallet Selection (for Payout) */}
+          {transactionType === 'payout' && (
+            <div className="glossy-card rounded-2xl p-6">
+              <h3 className="text-lg font-bold text-text-primary mb-4">Select Wallet</h3>
+              <div className="space-y-3">
+                {wallets.map((wallet) => (
+                  <button
+                    key={wallet.id}
+                    onClick={() => setSelectedWallet(wallet)}
+                    className={`w-full p-4 rounded-xl transition-all border-2 text-left ${
+                      selectedWallet?.id === wallet.id
+                        ? 'border-white/[0.3] bg-white/[0.1]'
+                        : 'border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.06]'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">{wallet.icon}</span>
+                        <div>
+                          <p className="font-bold text-text-primary">{wallet.name}</p>
+                          <p className="text-sm text-text-secondary">EGP {wallet.balance.toLocaleString()}</p>
+                        </div>
+                      </div>
+                      {selectedWallet?.id === wallet.id && <CheckCircle2 size={20} className="text-accent-blue" />}
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
+          )}
 
-            {/* Submit Button */}
+          {/* Summary */}
+          <div className="glossy-card rounded-2xl p-6" style={{ borderColor: `${provider.color}40` }}>
+            <h3 className="text-lg font-bold text-text-primary mb-4">Summary</h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-text-secondary">Provider:</span>
+                <span className="font-bold text-text-primary">{provider.name}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-text-secondary">Amount:</span>
+                <span className="font-bold text-text-primary">EGP {parseFloat(amount || '0').toLocaleString()}</span>
+              </div>
+              {transactionType === 'payout' && (
+                <div className="flex justify-between">
+                  <span className="text-text-secondary">Wallet:</span>
+                  <span className="font-bold text-text-primary">{selectedWallet?.name}</span>
+                </div>
+              )}
+            </div>
             <button
               onClick={handlePayment}
-              disabled={
-                loading ||
-                !phone ||
-                !amount ||
-                !email ||
-                !merchantName ||
-                (transactionType === 'payout' && !selectedWallet)
-              }
-              className="w-full btn flex items-center justify-center gap-2 disabled:opacity-50"
-              style={{
-                background:
-                  transactionType === 'deposit'
-                    ? '#10b981'
-                    : provider?.color || '#007AFF',
-              }}
+              className="w-full mt-6 bg-accent-blue text-white font-bold py-3 rounded-xl hover:brightness-110 transition-all"
             >
-              {loading ? '⏳ Processing...' : `✓ Generate ${transactionType === 'deposit' ? 'Deposit' : 'Payout'} Code`}
+              Continue to Payment
             </button>
           </div>
-        ) : (
-          // Payment Result
-          <div className="space-y-6 animate-slide-down">
-            {/* Success */}
-            <div className="apple-surface rounded-2xl p-8 text-center">
-              <div className="flex justify-center mb-4">
-                <CheckCircle2 size={48} className="text-accent-green" />
-              </div>
-              <h2 className="font-apple text-2xl font-bold text-text-primary mb-2">
-                Payment Ready ✅
-              </h2>
-              <p className="text-text-secondary text-sm mb-4">
-                Invoice sent to <span className="font-semibold text-text-primary">{email}</span>
-              </p>
-            </div>
-
-            {/* Transaction Details */}
-            <div className="apple-surface rounded-2xl p-6">
-              <h3 className="section-title">Transaction Details</h3>
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-text-secondary">Transaction ID:</span>
-                  <span className="font-mono font-semibold text-text-primary">{transactionId}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-text-secondary">Merchant:</span>
-                  <span className="font-semibold text-text-primary">{merchantName}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-text-secondary">Amount:</span>
-                  <span className="font-semibold text-accent-blue">{amount} EGP</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-text-secondary">Transaction Type:</span>
-                  <span className="font-semibold uppercase" style={{ color: transactionType === 'deposit' ? '#10b981' : '#ff9f0a' }}>
-                    {transactionType === 'deposit' ? '📥 Deposit' : '📤 Payout'}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-text-secondary">
-                    {transactionType === 'deposit' ? 'Merchant Wallet (Receives):' : 'Payout Wallet (Deducts):'}
-                  </span>
-                  <span className="font-semibold text-text-primary flex items-center gap-2">
-                    <span>
-                      {transactionType === 'deposit'
-                        ? assignedMerchantWallet?.icon
-                        : selectedWallet?.icon}
-                    </span>
-                    {transactionType === 'deposit'
-                      ? assignedMerchantWallet?.provider
-                      : selectedWallet?.provider}
-                  </span>
-                </div>
-                {transactionType === 'payout' && (
-                  <div className="flex justify-between">
-                    <span className="text-text-secondary">Remaining Balance:</span>
-                    <span className="font-semibold text-accent-green">{(walletBalance / 1000).toFixed(0)}K EGP</span>
-                  </div>
-                )}
-                <div className="flex justify-between">
-                  <span className="text-text-secondary">Location:</span>
-                  <span className="font-semibold text-text-primary flex items-center gap-2">
-                    <span>{selectedLocation?.flag}</span> {selectedLocation?.city}, {selectedLocation?.country}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-text-secondary">USSD Provider:</span>
-                  <span className="font-semibold" style={{ color: provider?.color }}>
-                    {provider?.icon} {provider?.name}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-text-secondary">Date:</span>
-                  <span className="font-semibold text-text-primary">
-                    {new Date().toLocaleString()}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* QR Code */}
-            <div className="apple-surface rounded-2xl p-6 text-center">
-              <h3 className="section-title mb-4">Scan QR Code</h3>
-              <div className="inline-block bg-white p-4 rounded-xl">
-                <img src={qrCode} alt="QR Code" style={{ width: '180px', height: '180px' }} />
-              </div>
-              <p className="text-text-secondary text-sm mt-4">
-                Scan with your phone camera to initiate payment
-              </p>
-            </div>
-
-            {/* USSD Code */}
-            <div className="apple-surface rounded-2xl p-6">
-              <h3 className="section-title mb-4">USSD Code</h3>
-              <div className="relative">
-                <div className="bg-apple-gray5 border border-white/[0.08] rounded-xl p-4 font-mono text-lg font-bold text-text-primary text-center break-all">
-                  {ussdCode}
-                </div>
-                <button
-                  onClick={copyToClipboard}
-                  className="absolute right-4 top-4 p-2 hover:bg-white/10 rounded-lg transition-all"
-                >
-                  {copied ? (
-                    <CheckCircle2 size={20} className="text-accent-green" />
-                  ) : (
-                    <Copy size={20} className="text-accent-blue" />
-                  )}
-                </button>
-              </div>
-              <p className="text-text-secondary text-sm mt-3">
-                {copied ? '✓ Copied to clipboard' : 'Click to copy USSD code'}
-              </p>
-            </div>
-
-            {/* Payment Instructions */}
-            <div className="apple-surface rounded-2xl p-6">
-              <h3 className="section-title mb-4">How to Pay</h3>
-              <ol className="space-y-3 text-sm text-text-secondary">
-                <li className="flex gap-3">
-                  <span className="font-bold text-accent-blue">1.</span>
-                  <span>
-                    Open your phone's dialer and dial the USSD code above, or scan the QR code
-                  </span>
-                </li>
-                <li className="flex gap-3">
-                  <span className="font-bold text-accent-blue">2.</span>
-                  <span>
-                    Complete the payment on your {provider?.name}
-                  </span>
-                </li>
-                <li className="flex gap-3">
-                  <span className="font-bold text-accent-blue">3.</span>
-                  <span>
-                    You'll receive a confirmation SMS and email invoice
-                  </span>
-                </li>
-                <li className="flex gap-3">
-                  <span className="font-bold text-accent-blue">4.</span>
-                  <span>
-                    Payment will be processed automatically
-                  </span>
-                </li>
-              </ol>
-            </div>
-
-            {/* Email Invoice Info */}
-            <div className="apple-surface rounded-2xl p-6 border-l-4 border-accent-blue">
-              <div className="flex items-start gap-3">
-                <Mail size={20} className="text-accent-blue mt-1 flex-shrink-0" />
-                <div>
-                  <h4 className="font-semibold text-text-primary mb-1">Invoice Email Sent</h4>
-                  <p className="text-sm text-text-secondary">
-                    A detailed invoice including transaction ID {transactionId}, amount, merchant name, and payment method has been sent to {email}. Keep this for your records.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-4">
-              <button onClick={resetForm} className="btn flex-1">
-                New Payment
-              </button>
-              <button className="btn-secondary flex-1">
-                Download Invoice
-              </button>
-            </div>
-          </div>
-        )}
+        </div>
       </div>
     </div>
   )
