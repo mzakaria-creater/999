@@ -22,7 +22,7 @@ export default function Layout() {
         <Header onMenuToggle={setSidebarOpen} />
 
         {/* Content Area - responsive margin */}
-        <main className="flex-1 overflow-y-auto pt-16 md:pt-0">
+        <main className="flex-1 overflow-y-auto pt-16 md:pt-0 animate-apple-enter">
           <div className={dir === 'rtl' ? 'md:mr-64' : 'md:ml-64'} style={{ marginRight: dir === 'rtl' ? '16rem' : '0', marginLeft: dir === 'ltr' ? '16rem' : '0' }}>
             <Outlet />
           </div>
