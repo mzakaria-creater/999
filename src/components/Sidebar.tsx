@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { LayoutDashboard, ArrowDownCircle, ArrowUpCircle, CheckSquare, Wallet, DollarSign, Users, Settings, Store, CreditCard, Globe, Brain, MapPin, Zap, Sparkles, Gauge } from 'lucide-react'
+import { LayoutDashboard, ArrowDownCircle, ArrowUpCircle, CheckSquare, Wallet, DollarSign, Users, Settings, Store, CreditCard, Globe, Brain, MapPin, Zap, Sparkles, Gauge, User, Lock, MessageSquare, Workflow, TrendingUp } from 'lucide-react'
 import { useAuth, type UserRole } from '@/context/AuthContext'
 
 interface NavItem {
@@ -31,6 +31,12 @@ const allNavItems: NavItem[] = [
   { path: '/merchants', label: 'Merchants', Icon: Store, requiredRoles: ['admin', 'operator'] },
   { path: '/users', label: 'Users', Icon: Users, requiredRoles: ['admin'] },
   { path: '/settings', label: 'Settings', Icon: Settings, requiredRoles: ['admin'] },
+  { path: '/account', label: 'Account', Icon: User, requiredRoles: ['admin', 'operator', 'merchant', 'viewer'] },
+  { path: '/wallet-pool', label: 'Wallet Pool', Icon: Wallet, requiredRoles: ['admin', 'operator'] },
+  { path: '/vault', label: 'Vault', Icon: Lock, requiredRoles: ['admin'] },
+  { path: '/n8n', label: 'n8n', Icon: Workflow, requiredRoles: ['admin', 'operator'] },
+  { path: '/binance', label: 'Binance', Icon: TrendingUp, requiredRoles: ['admin', 'operator'] },
+  { path: '/sms-reader', label: 'SMS Reader', Icon: MessageSquare, requiredRoles: ['admin', 'operator'] },
 ]
 
 export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {

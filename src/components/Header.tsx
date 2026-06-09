@@ -1,6 +1,7 @@
 import { useLanguage } from '@/context/LanguageContext'
-import { Menu, X, Globe } from 'lucide-react'
+import { Menu, X, Globe, Bell, Settings, LogOut, User } from 'lucide-react'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 interface HeaderProps {
   onMenuToggle?: (open: boolean) => void
@@ -10,6 +11,15 @@ export default function Header({ onMenuToggle }: HeaderProps) {
   const { language, setLanguage } = useLanguage()
   const [menuOpen, setMenuOpen] = useState(false)
   const [langDropdown, setLangDropdown] = useState(false)
+  const [notifDropdown, setNotifDropdown] = useState(false)
+  const [profileDropdown, setProfileDropdown] = useState(false)
+  const navigate = useNavigate()
+
+  const notifications = [
+    { id: 1, message: 'Transaction approved: ₦50,000 deposit', time: '5 minutes ago', read: false },
+    { id: 2, message: 'Wallet balance warning for UAE pool', time: '1 hour ago', read: false },
+    { id: 3, message: 'Monthly compliance report ready', time: '3 hours ago', read: true },
+  ]
 
   const handleMenuToggle = () => {
     const newState = !menuOpen
@@ -38,6 +48,104 @@ export default function Header({ onMenuToggle }: HeaderProps) {
           OnTarget PSP
         </h1>
         <p className="text-[10px] text-text-secondary hidden sm:block">{language === 'en' ? 'Payment Service Provider' : 'مزود خدمات الدفع'}</p>
+      </div>
+
+      {/* Notification Bell */}
+      <div className="relative flex-shrink-0 mx-2">
+        <button
+          onClick={() => setNotifDropdown(!notifDropdown)}
+          className="p-2 hover:bg-white/[0.08] rounded-lg transition-colors relative"
+        >
+          <Bell size={20} className="text-text-secondary hover:text-accent-blue" />
+          {notifications.some(n => !n.read) && (
+            <span className="absolute top-1 right-1 w-2 h-2 bg-accent-red rounded-full"></span>
+          )}
+        </button>
+
+        {/* Notification Dropdown */}
+        {notifDropdown && (
+          <div className="absolute top-full right-0 mt-2 bg-apple-gray6 border border-white/[0.08] rounded-lg shadow-lg overflow-hidden z-50 min-w-80">
+            <div className="p-4 border-b border-white/[0.08]">
+              <h3 className="font-bold text-text-primary">Notifications</h3>
+            </div>
+            <div className="max-h-80 overflow-y-auto">
+              {notifications.map((notif) => (
+                <button
+                  key={notif.id}
+                  onClick={() => setNotifDropdown(false)}
+                  className="w-full px-4 py-3 text-left hover:bg-white/[0.05] transition-colors border-b border-white/[0.06] last:border-b-0"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className={`w-2 h-2 rounded-full flex-shrink-0 mt-1.5 ${notif.read ? 'bg-transparent' : 'bg-accent-blue'}`}></div>
+                    <div className="flex-1">
+                      <p className="text-sm text-text-primary">{notif.message}</p>
+                      <p className="text-xs text-text-secondary mt-1">{notif.time}</p>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+            <button className="w-full px-4 py-3 text-center text-sm text-accent-blue hover:bg-white/[0.05] font-semibold border-t border-white/[0.08]">
+              View All
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Profile Menu */}
+      <div className="relative flex-shrink-0 mx-2">
+        <button
+          onClick={() => setProfileDropdown(!profileDropdown)}
+          className="flex items-center gap-2 p-1 hover:bg-white/[0.08] rounded-lg transition-colors"
+        >
+          {/* Profile Avatar */}
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent-blue to-accent-green flex items-center justify-center text-white font-bold text-sm">
+            AH
+          </div>
+          <span className="text-xs font-semibold hidden md:inline-block text-text-secondary">Ahmed</span>
+        </button>
+
+        {/* Profile Dropdown */}
+        {profileDropdown && (
+          <div className="absolute top-full right-0 mt-2 bg-apple-gray6 border border-white/[0.08] rounded-lg shadow-lg overflow-hidden z-50 min-w-56">
+            {/* Profile Header */}
+            <div className="p-4 border-b border-white/[0.08] bg-white/[0.02]">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent-blue to-accent-green flex items-center justify-center text-white font-bold">
+                  AH
+                </div>
+                <div className="flex-1">
+                  <p className="font-bold text-text-primary">Ahmed Hassan</p>
+                  <p className="text-xs text-text-secondary">Administrator</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Menu Items */}
+            <div className="py-2">
+              <button
+                onClick={() => {
+                  navigate('/account')
+                  setProfileDropdown(false)
+                }}
+                className="w-full px-4 py-2 text-left flex items-center gap-3 text-text-secondary hover:text-white hover:bg-white/[0.06] transition-colors"
+              >
+                <User size={16} /> Account Settings
+              </button>
+              <button
+                onClick={() => setProfileDropdown(false)}
+                className="w-full px-4 py-2 text-left flex items-center gap-3 text-text-secondary hover:text-white hover:bg-white/[0.06] transition-colors"
+              >
+                <Settings size={16} /> Preferences
+              </button>
+            </div>
+
+            {/* Logout */}
+            <button className="w-full px-4 py-2 text-left flex items-center gap-3 text-accent-orange hover:bg-accent-orange/10 transition-colors border-t border-white/[0.08]">
+              <LogOut size={16} /> Logout
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Language Switcher with Dropdown */}
