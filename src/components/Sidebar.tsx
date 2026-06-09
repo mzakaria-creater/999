@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, ArrowDownCircle, ArrowUpCircle, CheckSquare, Wallet, DollarSign, Users,
   Settings, Store, CreditCard, Globe, Brain, MapPin, Zap, Sparkles, Gauge, User, Lock,
-  MessageSquare, Workflow, TrendingUp, ChevronDown, ChevronUp, BarChart3, Send
+  MessageSquare, Workflow, TrendingUp, ChevronDown, ChevronUp, BarChart3, Send, Briefcase
 } from 'lucide-react'
 import { useAuth, type UserRole } from '@/context/AuthContext'
 import { useState } from 'react'
@@ -64,6 +64,7 @@ const navGroups: NavGroup[] = [
   {
     name: 'Management',
     items: [
+      { path: '/merchant-portal', label: 'Merchant Portal', Icon: Briefcase, requiredRoles: ['merchant', 'admin', 'operator'] },
       { path: '/merchants', label: 'Merchants', Icon: Store, requiredRoles: ['admin', 'operator'] },
       { path: '/users', label: 'Users', Icon: Users, requiredRoles: ['admin'] },
       { path: '/account', label: 'Account', Icon: User, requiredRoles: ['admin', 'operator', 'merchant', 'viewer'] },

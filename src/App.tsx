@@ -30,6 +30,7 @@ import SMSReader from '@pages/SMSReader'
 import DepositsTransaction from '@pages/DepositsTransaction'
 import PayoutsTransaction from '@pages/PayoutsTransaction'
 import TelegramSettings from '@pages/TelegramSettings'
+import MerchantPortal from '@pages/MerchantPortal'
 
 export default function App() {
   return (
@@ -63,6 +64,7 @@ export default function App() {
             <Route path="/deposits-transaction" element={<ProtectedRoute requiredRoles={['admin', 'operator']}><DepositsTransaction /></ProtectedRoute>} />
             <Route path="/payouts-transaction" element={<ProtectedRoute requiredRoles={['admin', 'operator']}><PayoutsTransaction /></ProtectedRoute>} />
             <Route path="/telegram" element={<TelegramSettings />} />
+            <Route path="/merchant-portal" element={<ProtectedRoute requiredRoles={['merchant', 'admin', 'operator']}><MerchantPortal /></ProtectedRoute>} />
           </Route>
         </Routes>
         </Router>
