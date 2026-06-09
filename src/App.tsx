@@ -6,6 +6,8 @@ import ProtectedRoute from '@components/ProtectedRoute'
 
 // Pages
 import Dashboard from '@pages/Dashboard'
+import MerchantCommandCenter from '@pages/MerchantCommandCenter'
+import RoutingEngine from '@pages/RoutingEngine'
 import Deposits from '@pages/Deposits'
 import Payouts from '@pages/Payouts'
 import Approvals from '@pages/Approvals'
@@ -24,6 +26,8 @@ export default function App() {
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/command-center" element={<ProtectedRoute requiredRoles={['admin', 'operator']}><MerchantCommandCenter /></ProtectedRoute>} />
+            <Route path="/routing-engine" element={<ProtectedRoute requiredRoles={['admin', 'operator']}><RoutingEngine /></ProtectedRoute>} />
             <Route path="/deposits" element={<ProtectedRoute requiredRoles={['admin', 'operator', 'merchant']}><Deposits /></ProtectedRoute>} />
             <Route path="/payouts" element={<ProtectedRoute requiredRoles={['admin', 'operator', 'merchant']}><Payouts /></ProtectedRoute>} />
             <Route path="/approvals" element={<ProtectedRoute requiredRoles={['admin', 'operator']}><Approvals /></ProtectedRoute>} />

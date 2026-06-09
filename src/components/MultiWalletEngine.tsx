@@ -270,11 +270,18 @@ export default function MultiWalletEngine() {
           <Activity size={20} /> Wallet Health Status
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {walletHealth.map((wallet) => (
+          {walletHealth.map((wallet) => {
+            const getWalletIcon = () => {
+              if (wallet.provider === 'Vodafone Cash') return '📱'
+              if (wallet.provider === 'InstaPay') return '💳'
+              if (wallet.provider === 'Commercial Bank') return '🏦'
+              return '💎'
+            }
+            return (
             <div key={wallet.wallet_id} className="bg-apple-gray5 rounded-xl p-4">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-2xl">{wallet.provider === 'Vodafone Cash' ? '📱' : wallet.provider === 'InstaPay' ? '💳' : wallet.provider === 'Commercial Bank' ? '🏦' : '💎'}</span>
+                  <span className="text-2xl">{getWalletIcon()}</span>
                   <div>
                     <div className="font-semibold text-text-primary">{wallet.provider}</div>
                     <div className="text-xs text-text-secondary">{wallet.provider}</div>
@@ -336,7 +343,8 @@ export default function MultiWalletEngine() {
                 </div>
               </div>
             </div>
-          ))}
+            )
+          })}
         </div>
       </div>
 
@@ -384,7 +392,7 @@ export default function MultiWalletEngine() {
             <CheckCircle2 size={18} className="text-accent-green flex-shrink-0 mt-0.5" />
             <div>
               <div className="font-semibold text-text-primary">🟢 Healthy</div>
-              <div className="text-text-secondary">Balance >40%, Capacity <75%</div>
+              <div className="text-text-secondary">Balance {">"} 40%, Capacity {"<"} 75%</div>
             </div>
           </div>
           <div className="flex items-start gap-3">
@@ -398,7 +406,7 @@ export default function MultiWalletEngine() {
             <AlertCircle size={18} className="text-accent-red flex-shrink-0 mt-0.5" />
             <div>
               <div className="font-semibold text-text-primary">🔴 Critical</div>
-              <div className="text-text-secondary">Balance <20% OR Capacity >90%</div>
+              <div className="text-text-secondary">Balance {"<"} 20% OR Capacity {">"} 90%</div>
             </div>
           </div>
         </div>
