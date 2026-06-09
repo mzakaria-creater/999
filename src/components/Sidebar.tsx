@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { LayoutDashboard, ArrowDownCircle, ArrowUpCircle, CheckSquare, Wallet, DollarSign, Users, Settings, Store, CreditCard, Globe, Brain, MapPin, Zap, Sparkles } from 'lucide-react'
+import { LayoutDashboard, ArrowDownCircle, ArrowUpCircle, CheckSquare, Wallet, DollarSign, Users, Settings, Store, CreditCard, Globe, Brain, MapPin, Zap, Sparkles, Gauge } from 'lucide-react'
 import { useAuth, type UserRole } from '@/context/AuthContext'
 
 interface NavItem {
@@ -16,6 +16,7 @@ interface SidebarProps {
 
 const allNavItems: NavItem[] = [
   { path: '/', label: 'Dashboard', Icon: LayoutDashboard, requiredRoles: ['admin', 'operator', 'merchant', 'viewer'] },
+  { path: '/production', label: 'Production Hub', Icon: Gauge, requiredRoles: ['admin', 'operator'] },
   { path: '/glossy-showcase', label: 'Glossy 3D', Icon: Sparkles, requiredRoles: ['admin', 'operator', 'merchant', 'viewer'] },
   { path: '/command-center', label: 'Command Center', Icon: Globe, requiredRoles: ['admin', 'operator'] },
   { path: '/routing-engine', label: 'Routing Engine', Icon: Brain, requiredRoles: ['admin', 'operator'] },

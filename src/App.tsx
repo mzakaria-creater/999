@@ -6,6 +6,7 @@ import ProtectedRoute from '@components/ProtectedRoute'
 
 // Pages
 import Dashboard from '@pages/Dashboard'
+import ProductionDashboard from '@pages/ProductionDashboard'
 import GlossyShowcase from '@pages/GlossyShowcase'
 import MerchantCommandCenter from '@pages/MerchantCommandCenter'
 import RoutingEngine from '@pages/RoutingEngine'
@@ -29,6 +30,7 @@ export default function App() {
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/production" element={<ProtectedRoute requiredRoles={['admin', 'operator']}><ProductionDashboard /></ProtectedRoute>} />
             <Route path="/glossy-showcase" element={<GlossyShowcase />} />
             <Route path="/command-center" element={<ProtectedRoute requiredRoles={['admin', 'operator']}><MerchantCommandCenter /></ProtectedRoute>} />
             <Route path="/routing-engine" element={<ProtectedRoute requiredRoles={['admin', 'operator']}><RoutingEngine /></ProtectedRoute>} />
