@@ -5,6 +5,7 @@ import Chart from '@components/Chart'
 import TransactionTable from '@components/TransactionTable'
 import WalletManagementTable from '@components/WalletManagementTable'
 import MultiWalletCheckout from '@components/MultiWalletCheckout'
+import MultiWalletEngine from '@components/MultiWalletEngine'
 import iPhone3DMockup from '@components/3D/iPhone3DMockup'
 import TransactionFlow3D from '@components/3D/TransactionFlow3D'
 
@@ -141,6 +142,11 @@ export default function Dashboard() {
         <div className="animate-slide-down" style={{ animationDelay: '0.2s' }}>
           <h2 className="section-title">Wallet Portfolio</h2>
           <WalletManagementTable />
+        </div>
+
+        {/* Multi-Wallet Engine */}
+        <div className="animate-slide-down" style={{ animationDelay: '0.22s' }}>
+          <MultiWalletEngine />
         </div>
 
         {/* Multi-Wallet Checkout Demo */}
