@@ -115,6 +115,68 @@
     color: #FF3B30;
     border: 1px solid rgba(255,59,48,0.2);
   }
+
+  /* Dynamic Auto-Fit Layouts */
+  .grid-auto-fit {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .grid-auto-fill {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+
+  /* Responsive Typography */
+  @media (max-width: 640px) {
+    .section-title {
+      font-size: 1.25rem;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+    }
+
+    .btn-secondary {
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+    }
+
+    .input {
+      padding: 0.5rem 0.5rem;
+    }
+  }
+
+  /* Fluid Container */
+  .container-fluid {
+    width: 100%;
+    padding-left: clamp(1rem, 4vw, 2rem);
+    padding-right: clamp(1rem, 4vw, 2rem);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Dynamic Spacing */
+  .gap-responsive {
+    gap: clamp(1rem, 3vw, 2rem);
+  }
+
+  .p-responsive {
+    padding: clamp(1rem, 4vw, 2rem);
+  }
+
+  .py-responsive {
+    padding-top: clamp(1.5rem, 5vw, 3rem);
+    padding-bottom: clamp(1.5rem, 5vw, 3rem);
+  }
+
+  .px-responsive {
+    padding-left: clamp(1rem, 4vw, 2rem);
+    padding-right: clamp(1rem, 4vw, 2rem);
+  }
 }
 
 /* Animations */
