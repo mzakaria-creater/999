@@ -14,7 +14,7 @@ export default function Dashboard() {
   const [selectedWallet, setSelectedWallet] = useState('')
 
   return (
-    <div className="ml-64 pt-20 pb-8 px-8 max-w-7xl">
+    <div className="pb-8 px-4 md:px-8 max-w-7xl mx-auto w-full">
       <div className="space-y-8">
         {/* Header */}
         <div className="animate-slide-down">

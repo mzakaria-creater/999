@@ -3,7 +3,7 @@ import WalletManagementTable from '@components/WalletManagementTable'
 
 export default function Wallets() {
   return (
-    <div className="ml-64 pt-20 pb-8 px-8">
+    <div className="pb-8 px-4 md:px-8 mx-auto w-full">
       <div className="space-y-8">
         <div className="animate-slide-down">
           <h1 className="font-apple text-4xl font-bold text-text-primary mb-2">

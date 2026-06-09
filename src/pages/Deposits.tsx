@@ -21,7 +21,7 @@ export default function Deposits() {
   const completedCount = filtered.filter(d => d.status === 'completed').length
 
   return (
-    <div className="ml-64 pt-20 pb-8 px-8 max-w-7xl">
+    <div className="pb-8 px-4 md:px-8 max-w-7xl mx-auto w-full">
       <div className="space-y-8">
         <div className="flex justify-between items-start">
           <div>

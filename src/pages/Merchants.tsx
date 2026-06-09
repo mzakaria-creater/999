@@ -26,7 +26,7 @@ export default function Merchants() {
   }
 
   return (
-    <div className="ml-64 pt-20 pb-8 px-8">
+    <div className="pb-8 px-4 md:px-8 mx-auto w-full">
       <div className="space-y-8">
         <div className="flex justify-between items-start">
           <div>

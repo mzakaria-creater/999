@@ -17,7 +17,7 @@ export default function Approvals() {
   const pendingCount = approvals.filter(a => a.status === 'pending').length
 
   return (
-    <div className="ml-64 pt-20 pb-8 px-8 max-w-7xl">
+    <div className="pb-8 px-4 md:px-8 max-w-7xl mx-auto w-full">
       <div className="space-y-8">
         <div>
           <h1 className="font-apple text-4xl font-bold text-text-primary mb-2">Approvals Center</h1>

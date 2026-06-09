@@ -157,7 +157,7 @@ export default function PaymentCheckout() {
   }
 
   return (
-    <div className="ml-64 pt-20 pb-8 px-8 max-w-3xl">
+    <div className="pb-8 px-4 md:px-8 max-w-3xl mx-auto w-full">
       <div className="space-y-8">
         <div>
           <h1 className="font-apple text-4xl font-bold text-text-primary mb-2">USSD Payment</h1>
