@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useLanguage } from '@/context/LanguageContext'
 
 export default function Header() {
-  const [lang, setLang] = useState('en')
+  const { language, setLanguage } = useLanguage()
 
   return (
     <header className="fixed top-0 left-0 right-0 h-16 bg-apple-gray6 border-b border-white/[0.06] flex items-center px-8 z-50 shadow-apple-inset">
@@ -13,9 +13,9 @@ export default function Header() {
 
       <div className="flex gap-2">
         <button
-          onClick={() => setLang('en')}
+          onClick={() => setLanguage('en')}
           className={`px-3 py-1.5 text-xs font-semibold uppercase rounded-lg transition-all duration-200 ${
-            lang === 'en'
+            language === 'en'
               ? 'bg-accent-blue text-white shadow-apple-button'
               : 'text-text-secondary hover:text-white hover:bg-white/[0.06]'
           }`}
@@ -23,14 +23,14 @@ export default function Header() {
           EN
         </button>
         <button
-          onClick={() => setLang('ar')}
-          className={`px-3 py-1.5 text-xs font-semibold uppercase rounded-lg transition-all duration-200 ${
-            lang === 'ar'
+          onClick={() => setLanguage('ar')}
+          className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 ${
+            language === 'ar'
               ? 'bg-accent-blue text-white shadow-apple-button'
               : 'text-text-secondary hover:text-white hover:bg-white/[0.06]'
           }`}
         >
-          العربية
+          ع
         </button>
       </div>
     </header>

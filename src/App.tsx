@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from '@/context/AuthContext'
+import { LanguageProvider } from '@/context/LanguageContext'
 import Layout from '@components/Layout'
 import ProtectedRoute from '@components/ProtectedRoute'
 
@@ -17,8 +18,9 @@ import PaymentCheckout from '@pages/PaymentCheckout'
 
 export default function App() {
   return (
-    <AuthProvider>
-      <Router>
+    <LanguageProvider>
+      <AuthProvider>
+        <Router>
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<Dashboard />} />
@@ -33,7 +35,8 @@ export default function App() {
             <Route path="/checkout" element={<PaymentCheckout />} />
           </Route>
         </Routes>
-      </Router>
-    </AuthProvider>
+        </Router>
+      </AuthProvider>
+    </LanguageProvider>
   )
 }
