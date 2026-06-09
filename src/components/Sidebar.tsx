@@ -1,24 +1,43 @@
 import { Link, useLocation } from 'react-router-dom'
-import { LayoutDashboard, ArrowDownCircle, ArrowUpCircle, CheckSquare } from 'lucide-react'
+import { LayoutDashboard, ArrowDownCircle, ArrowUpCircle, CheckSquare, Wallet, DollarSign, Users, Settings, Store } from 'lucide-react'
+import { useAuth, type UserRole } from '@/context/AuthContext'
 
-const navItems = [
-  { path: '/', label: 'Dashboard', Icon: LayoutDashboard },
-  { path: '/deposits', label: 'Deposits', Icon: ArrowDownCircle },
-  { path: '/payouts', label: 'Payouts', Icon: ArrowUpCircle },
-  { path: '/approvals', label: 'Approvals', Icon: CheckSquare },
+interface NavItem {
+  path: string
+  label: string
+  Icon: any
+  requiredRoles: UserRole[]
+}
+
+const allNavItems: NavItem[] = [
+  { path: '/', label: 'Dashboard', Icon: LayoutDashboard, requiredRoles: ['admin', 'operator', 'merchant', 'viewer'] },
+  { path: '/deposits', label: 'Deposits', Icon: ArrowDownCircle, requiredRoles: ['admin', 'operator', 'merchant'] },
+  { path: '/payouts', label: 'Payouts', Icon: ArrowUpCircle, requiredRoles: ['admin', 'operator', 'merchant'] },
+  { path: '/approvals', label: 'Approvals', Icon: CheckSquare, requiredRoles: ['admin', 'operator'] },
+  { path: '/wallets', label: 'Wallets', Icon: Wallet, requiredRoles: ['admin', 'operator'] },
+  { path: '/costs', label: 'Costs', Icon: DollarSign, requiredRoles: ['admin', 'operator'] },
+  { path: '/merchants', label: 'Merchants', Icon: Store, requiredRoles: ['admin', 'operator'] },
+  { path: '/users', label: 'Users', Icon: Users, requiredRoles: ['admin'] },
+  { path: '/settings', label: 'Settings', Icon: Settings, requiredRoles: ['admin'] },
 ]
 
 export default function Sidebar() {
   const location = useLocation()
+  const { user } = useAuth()
+
+  const visibleItems = allNavItems.filter(item =>
+    user && item.requiredRoles.includes(user.role)
+  )
 
   return (
     <aside className="fixed left-0 top-16 w-64 h-[calc(100vh-64px)] bg-apple-gray6 border-r border-white/[0.06] overflow-y-auto px-4 py-6 z-40">
       <div className="mb-8 px-2">
         <span className="text-sm font-bold tracking-tight text-white font-apple">OnTarget</span>
+        {user && <span className="text-xs text-text-secondary block mt-1 capitalize">Role: {user.role}</span>}
       </div>
 
       <nav className="space-y-2">
-        {navItems.map((item) => {
+        {visibleItems.map((item) => {
           const isActive = location.pathname === item.path
           const Icon = item.Icon
           return (
