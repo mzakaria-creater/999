@@ -16,11 +16,11 @@ export default function Card({ label, value, badge, featured }: CardProps) {
   }
 
   return (
-    <div className={`card ${featured ? 'animate-subtleGlow' : ''}`}>
-      <p className="text-xs uppercase tracking-wider text-text-secondary font-bold mb-3">
+    <div className={`apple-card ${featured ? 'animate-apple-pulse' : ''}`}>
+      <p className="text-xs uppercase tracking-widest text-text-secondary font-semibold font-apple mb-3">
         {label}
       </p>
-      <p className="font-jakarta text-3xl font-extrabold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-3">
+      <p className="font-apple text-3xl font-bold text-white tracking-tight mb-3" style={{ letterSpacing: '-0.03em' }}>
         {value}
       </p>
       {badge && <span className={`badge ${badgeClasses[badge.type]}`}>{badge.text}</span>}

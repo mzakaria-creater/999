@@ -1,38 +1,41 @@
 import { Link, useLocation } from 'react-router-dom'
+import { LayoutDashboard, ArrowDownCircle, ArrowUpCircle, CheckSquare } from 'lucide-react'
 
 const navItems = [
-  { path: '/', label: 'Dashboard', icon: '📊' },
-  { path: '/deposits', label: 'Deposits', icon: '📥' },
-  { path: '/payouts', label: 'Payouts', icon: '📤' },
-  { path: '/approvals', label: 'Approvals', icon: '✅' },
+  { path: '/', label: 'Dashboard', Icon: LayoutDashboard },
+  { path: '/deposits', label: 'Deposits', Icon: ArrowDownCircle },
+  { path: '/payouts', label: 'Payouts', Icon: ArrowUpCircle },
+  { path: '/approvals', label: 'Approvals', Icon: CheckSquare },
 ]
 
 export default function Sidebar() {
   const location = useLocation()
 
   return (
-    <aside className="fixed left-0 top-16 w-72 h-[calc(100vh-64px)] bg-gradient-to-b from-dark-surface/50 to-dark-elevation/40 backdrop-blur-3xl border-r border-white/[0.08] overflow-y-auto p-8 z-40">
-      <div className="mb-8">
-        <h2 className="text-lg font-bold font-syne bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-          ◆ OnTarget
-        </h2>
+    <aside className="fixed left-0 top-16 w-64 h-[calc(100vh-64px)] bg-apple-gray6 border-r border-white/[0.06] overflow-y-auto px-4 py-6 z-40">
+      <div className="mb-8 px-2">
+        <span className="text-sm font-bold tracking-tight text-white font-apple">OnTarget</span>
       </div>
 
       <nav className="space-y-2">
-        {navItems.map((item) => (
-          <Link
-            key={item.path}
-            to={item.path}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
-              location.pathname === item.path
-                ? 'bg-gradient-to-r from-primary/15 to-accent/10 text-primary border-l-4 border-primary'
-                : 'text-text-secondary hover:text-primary hover:bg-primary/10'
-            }`}
-          >
-            <span className="text-xl">{item.icon}</span>
-            <span className="font-medium">{item.label}</span>
-          </Link>
-        ))}
+        {navItems.map((item) => {
+          const isActive = location.pathname === item.path
+          const Icon = item.Icon
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                isActive
+                  ? 'bg-accent-blue text-white shadow-apple-button'
+                  : 'text-text-secondary hover:text-white hover:bg-white/[0.06]'
+              }`}
+            >
+              <Icon size={18} />
+              <span className="font-medium text-sm">{item.label}</span>
+            </Link>
+          )
+        })}
       </nav>
     </aside>
   )

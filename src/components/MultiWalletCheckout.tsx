@@ -85,17 +85,17 @@ export default function MultiWalletCheckout({
   }
 
   const getHealthColor = (score: number) => {
-    if (score >= 95) return 'text-green-400'
-    if (score >= 80) return 'text-yellow-400'
-    return 'text-red-400'
+    if (score >= 95) return 'text-accent-green'
+    if (score >= 80) return 'text-accent-orange'
+    return 'text-accent-red'
   }
 
   return (
     <div className="space-y-6">
       {/* Amount Summary */}
-      <div className="glass rounded-2xl p-6">
+      <div className="apple-surface rounded-2xl p-6">
         <p className="text-text-secondary text-sm mb-2">Amount to Process</p>
-        <p className="font-jakarta text-3xl font-bold text-primary">
+        <p className="font-apple text-3xl font-bold text-white">
           {amount.toLocaleString()} {currency}
         </p>
       </div>
@@ -112,9 +112,9 @@ export default function MultiWalletCheckout({
                 setSelectedWallet(wallet.id)
                 onSelectWallet(wallet.id)
               }}
-              className={`w-full glass rounded-2xl p-4 text-left transition-all duration-200 border-2 cursor-pointer hover:border-primary/40 ${
+              className={`w-full apple-surface rounded-2xl p-4 text-left transition-all duration-200 border-2 cursor-pointer hover:border-accent-blue/40 ${
                 selectedWallet === wallet.id
-                  ? 'border-primary ring-2 ring-primary/20'
+                  ? 'border-accent-blue ring-2 ring-accent-blue/20'
                   : 'border-white/[0.08]'
               }`}
             >
@@ -125,7 +125,7 @@ export default function MultiWalletCheckout({
                     <div
                       className={`w-4 h-4 rounded-full border-2 ${
                         selectedWallet === wallet.id
-                          ? 'border-primary bg-primary'
+                          ? 'border-accent-blue bg-accent-blue'
                           : 'border-text-secondary'
                       }`}
                     />
@@ -133,11 +133,11 @@ export default function MultiWalletCheckout({
                       {wallet.provider}
                     </span>
                     {wallet.isAvailable ? (
-                      <span className="text-xs bg-success/20 text-success px-2 py-1 rounded-md">
+                      <span className="text-xs bg-accent-green/20 text-accent-green px-2 py-1 rounded-md">
                         Available
                       </span>
                     ) : (
-                      <span className="text-xs bg-error/20 text-error px-2 py-1 rounded-md">
+                      <span className="text-xs bg-accent-red/20 text-accent-red px-2 py-1 rounded-md">
                         Unavailable
                       </span>
                     )}
@@ -173,9 +173,9 @@ export default function MultiWalletCheckout({
                         {(wallet.dailyUsed / 1000000).toFixed(1)}M / {(wallet.dailyLimit / 1000000).toFixed(0)}M
                       </span>
                     </div>
-                    <div className="bg-dark-elevation rounded-full h-2 overflow-hidden">
+                    <div className="bg-apple-gray5 rounded-full h-2 overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-300"
+                        className="h-full bg-accent-blue transition-all duration-300"
                         style={{
                           width: `${(wallet.dailyUsed / wallet.dailyLimit) * 100}%`,
                         }}
@@ -186,7 +186,7 @@ export default function MultiWalletCheckout({
 
                 {/* Right Arrow */}
                 <ChevronRight
-                  className={`text-primary mt-1 transition-transform ${
+                  className={`text-accent-blue mt-1 transition-transform ${
                     selectedWallet === wallet.id ? 'scale-110' : ''
                   }`}
                   size={20}
@@ -199,7 +199,7 @@ export default function MultiWalletCheckout({
 
       {/* Selected Wallet Details */}
       {selected && (
-        <div className="glass rounded-2xl p-6 space-y-4">
+        <div className="apple-surface rounded-2xl p-6 space-y-4">
           <h3 className="font-bold text-text-primary">Transaction Details</h3>
 
           <div className="space-y-3">
@@ -207,7 +207,7 @@ export default function MultiWalletCheckout({
             <div className="flex items-center gap-3">
               {canProcess ? (
                 <>
-                  <CheckCircle2 className="text-success" size={20} />
+                  <CheckCircle2 className="text-accent-green" size={20} />
                   <div>
                     <p className="text-text-primary font-semibold">Ready to Process</p>
                     <p className="text-text-secondary text-sm">Sufficient balance and daily limit</p>
@@ -215,9 +215,9 @@ export default function MultiWalletCheckout({
                 </>
               ) : (
                 <>
-                  <AlertCircle className="text-warning" size={20} />
+                  <AlertCircle className="text-accent-orange" size={20} />
                   <div>
-                    <p className="text-warning font-semibold">Cannot Process</p>
+                    <p className="text-accent-orange font-semibold">Cannot Process</p>
                     <p className="text-text-secondary text-sm">
                       {availableBalance < amount
                         ? `Insufficient balance. Need ${(amount - availableBalance).toLocaleString()}`
@@ -244,7 +244,7 @@ export default function MultiWalletCheckout({
               </div>
               <div className="flex justify-between pt-2 border-t border-white/[0.08]">
                 <span className="text-text-primary font-bold">Total</span>
-                <span className="text-primary font-bold">
+                <span className="text-accent-blue font-bold">
                   {(amount * 1.015).toLocaleString()} {currency}
                 </span>
               </div>
@@ -266,7 +266,7 @@ export default function MultiWalletCheckout({
         className={`w-full py-3 rounded-xl font-bold text-lg transition-all duration-200 ${
           canProcess
             ? 'btn hover:shadow-lg'
-            : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+            : 'bg-apple-gray4 text-text-tertiary cursor-not-allowed'
         }`}
       >
         {canProcess

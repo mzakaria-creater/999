@@ -104,22 +104,22 @@ export default function WalletManagementTable() {
   })
 
   const getHealthColor = (score: number) => {
-    if (score >= 95) return 'bg-green-500/20 text-green-400'
-    if (score >= 85) return 'bg-yellow-500/20 text-yellow-400'
-    return 'bg-red-500/20 text-red-400'
+    if (score >= 95) return 'bg-accent-green/15 text-accent-green'
+    if (score >= 85) return 'bg-accent-orange/15 text-accent-orange'
+    return 'bg-accent-red/15 text-accent-red'
   }
 
   const getLoadColor = (used: number, max: number) => {
     const ratio = used / max
-    if (ratio < 0.6) return 'text-green-400'
-    if (ratio < 0.8) return 'text-yellow-400'
-    return 'text-red-400'
+    if (ratio < 0.6) return 'text-accent-green'
+    if (ratio < 0.8) return 'text-accent-orange'
+    return 'text-accent-red'
   }
 
   const getStatusIcon = (health: number) => {
-    if (health >= 90) return <CheckCircle2 className="text-green-400" size={18} />
-    if (health >= 70) return <AlertTriangle className="text-yellow-400" size={18} />
-    return <XCircle className="text-red-400" size={18} />
+    if (health >= 90) return <CheckCircle2 className="text-accent-green" size={18} />
+    if (health >= 70) return <AlertTriangle className="text-accent-orange" size={18} />
+    return <XCircle className="text-accent-red" size={18} />
   }
 
   return (
@@ -134,8 +134,8 @@ export default function WalletManagementTable() {
               onClick={() => setSortBy(option)}
               className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
                 sortBy === option
-                  ? 'bg-primary/20 text-primary border border-primary/40'
-                  : 'bg-white/[0.08] text-text-secondary hover:text-primary'
+                  ? 'bg-accent-blue/15 text-accent-blue border border-accent-blue/30'
+                  : 'bg-white/[0.08] text-text-secondary hover:text-accent-blue'
               }`}
             >
               {option.charAt(0).toUpperCase() + option.slice(1)}
@@ -146,32 +146,32 @@ export default function WalletManagementTable() {
 
       {/* Overview Cards */}
       <div className="grid grid-cols-4 gap-4">
-        <div className="glass rounded-xl p-4">
+        <div className="apple-surface rounded-xl p-4">
           <p className="text-xs text-text-secondary mb-1">Total Balance</p>
-          <p className="text-2xl font-bold text-primary">
+          <p className="text-2xl font-bold text-accent-blue">
             {(wallets.reduce((sum, w) => sum + w.balance, 0) / 1000000).toFixed(1)}M
           </p>
         </div>
-        <div className="glass rounded-xl p-4">
+        <div className="apple-surface rounded-xl p-4">
           <p className="text-xs text-text-secondary mb-1">Avg Health</p>
-          <p className="text-2xl font-bold text-success">
+          <p className="text-2xl font-bold text-accent-green">
             {(wallets.reduce((sum, w) => sum + w.healthScore, 0) / wallets.length).toFixed(0)}%
           </p>
         </div>
-        <div className="glass rounded-xl p-4">
+        <div className="apple-surface rounded-xl p-4">
           <p className="text-xs text-text-secondary mb-1">Daily Volume</p>
-          <p className="text-2xl font-bold text-accent">
+          <p className="text-2xl font-bold text-accent-orange">
             {(wallets.reduce((sum, w) => sum + w.dailyVolume, 0) / 1000000).toFixed(1)}M
           </p>
         </div>
-        <div className="glass rounded-xl p-4">
+        <div className="apple-surface rounded-xl p-4">
           <p className="text-xs text-text-secondary mb-1">Active Wallets</p>
-          <p className="text-2xl font-bold text-primary">{wallets.filter(w => w.isActive).length}/{wallets.length}</p>
+          <p className="text-2xl font-bold text-accent-blue">{wallets.filter(w => w.isActive).length}/{wallets.length}</p>
         </div>
       </div>
 
       {/* Wallets Table */}
-      <div className="glass rounded-2xl overflow-hidden">
+      <div className="apple-surface rounded-2xl overflow-hidden">
         <table className="w-full">
           <thead>
             <tr className="border-b border-white/[0.08]">
@@ -204,7 +204,7 @@ export default function WalletManagementTable() {
                 {/* Provider */}
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-primary" />
+                    <div className="w-2 h-2 rounded-full bg-accent-blue" />
                     <div>
                       <p className="font-semibold text-text-primary">{wallet.provider}</p>
                       <p className="text-xs text-text-secondary">{wallet.currency}</p>
@@ -244,9 +244,9 @@ export default function WalletManagementTable() {
                         {((wallet.dailyVolume / wallet.maxDailyVolume) * 100).toFixed(0)}%
                       </span>
                     </div>
-                    <div className="bg-dark-elevation rounded-full h-1.5 overflow-hidden">
+                    <div className="bg-apple-gray5 rounded-full h-1.5 overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-primary to-accent"
+                        className="h-full bg-accent-blue"
                         style={{
                           width: `${(wallet.dailyVolume / wallet.maxDailyVolume) * 100}%`,
                         }}
@@ -295,11 +295,11 @@ export default function WalletManagementTable() {
 
       {/* Alert if any wallet unhealthy */}
       {wallets.some((w) => w.healthScore < 80) && (
-        <div className="glass rounded-xl p-4 border-l-4 border-warning bg-warning/5">
+        <div className="apple-surface rounded-xl p-4 border-l-4 border-accent-orange bg-accent-orange/5">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="text-warning mt-1 flex-shrink-0" size={20} />
+            <AlertTriangle className="text-accent-orange mt-1 flex-shrink-0" size={20} />
             <div>
-              <p className="font-semibold text-warning mb-1">Attention Required</p>
+              <p className="font-semibold text-accent-orange mb-1">Attention Required</p>
               <p className="text-sm text-text-secondary">
                 {wallets.filter((w) => w.healthScore < 80).length} wallet(s) showing degraded health.
                 Consider rebalancing or investigating provider issues.

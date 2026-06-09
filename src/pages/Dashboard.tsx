@@ -26,11 +26,11 @@ export default function Dashboard() {
   }, [])
 
   return (
-    <div className="ml-72 pt-20 pb-8 px-8">
+    <div className="ml-64 pt-20 pb-8 px-8">
       <div className="space-y-8">
         {/* Header */}
         <div className="animate-slide-down">
-          <h1 className="font-syne text-4xl font-extrabold text-text-primary mb-2">
+          <h1 className="font-apple text-4xl font-bold text-text-primary mb-2">
             Enterprise Dashboard
           </h1>
           <p className="text-text-secondary">Real-time payment platform metrics</p>

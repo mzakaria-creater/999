@@ -11,7 +11,7 @@ const data = [
 
 export default function Chart() {
   return (
-    <div className="glass rounded-2xl p-8">
+    <div className="apple-surface rounded-2xl p-8">
       <ResponsiveContainer width="100%" height={320}>
         <BarChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
@@ -19,22 +19,25 @@ export default function Chart() {
           <YAxis stroke="rgba(255,255,255,0.5)" />
           <Tooltip
             contentStyle={{
-              backgroundColor: 'rgba(10, 14, 39, 0.9)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: '8px',
+              backgroundColor: '#1C1C1E',
+              border: '1px solid rgba(255,255,255,0.10)',
+              borderRadius: '12px',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+              fontFamily: '-apple-system, BlinkMacSystemFont, Inter, sans-serif',
+              fontSize: '13px',
             }}
-            cursor={{ fill: 'rgba(0, 217, 255, 0.1)' }}
+            cursor={{ fill: 'rgba(0, 122, 255, 0.08)' }}
           />
           <Bar
             dataKey="value"
-            fill="url(#colorGradient)"
-            radius={[8, 8, 0, 0]}
+            fill="url(#appleBlueGradient)"
+            radius={[6, 6, 0, 0]}
             animationDuration={1000}
           />
           <defs>
-            <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#00D9FF" />
-              <stop offset="100%" stopColor="#00B8D4" />
+            <linearGradient id="appleBlueGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#007AFF" />
+              <stop offset="100%" stopColor="#0062CC" />
             </linearGradient>
           </defs>
         </BarChart>

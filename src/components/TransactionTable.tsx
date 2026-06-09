@@ -41,7 +41,7 @@ const statusBadge = (status: string) => {
 
 export default function TransactionTable() {
   return (
-    <div className="glass rounded-2xl overflow-hidden">
+    <div className="apple-surface rounded-2xl overflow-hidden">
       <table className="w-full">
         <thead>
           <tr className="border-b border-white/[0.08]">
