@@ -5,6 +5,8 @@ import Chart from '@components/Chart'
 import TransactionTable from '@components/TransactionTable'
 import WalletManagementTable from '@components/WalletManagementTable'
 import MultiWalletCheckout from '@components/MultiWalletCheckout'
+import iPhone3DMockup from '@components/3D/iPhone3DMockup'
+import TransactionFlow3D from '@components/3D/TransactionFlow3D'
 
 export default function Dashboard() {
   const [showCheckout, setShowCheckout] = useState(false)
@@ -117,10 +119,22 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Transaction Flow Chart */}
+        {/* 3D Transaction Flow */}
         <div className="animate-slide-down" style={{ animationDelay: '0.15s' }}>
+          <h2 className="section-title">Transaction Flow</h2>
+          <TransactionFlow3D />
+        </div>
+
+        {/* Transaction Volume Chart */}
+        <div className="animate-slide-down" style={{ animationDelay: '0.16s' }}>
           <h2 className="section-title">Transaction Volume (24h)</h2>
           <Chart />
+        </div>
+
+        {/* 3D iPhone Mockup */}
+        <div className="animate-slide-down" style={{ animationDelay: '0.18s' }}>
+          <h2 className="section-title">Mobile Experience</h2>
+          <iPhone3DMockup />
         </div>
 
         {/* Multi-Wallet Portfolio */}
