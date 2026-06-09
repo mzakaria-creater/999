@@ -35,7 +35,7 @@ export default {
         },
       },
       fontFamily: {
-        apple: ['-apple-system', 'BlinkMacSystemFont', 'Inter', 'SF Pro Display', 'sans-serif'],
+        apple: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Cairo', 'Droid Arabic Kufi', 'sans-serif'],
       },
       boxShadow: {
         'apple-card': '0 1px 0 rgba(255,255,255,0.06), 0 2px 4px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.4)',
