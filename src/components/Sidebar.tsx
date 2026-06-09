@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, ArrowDownCircle, ArrowUpCircle, CheckSquare, Wallet, DollarSign, Users,
   Settings, Store, CreditCard, Globe, Brain, MapPin, Zap, Sparkles, Gauge, User, Lock,
-  MessageSquare, Workflow, TrendingUp, ChevronDown, ChevronUp
+  MessageSquare, Workflow, TrendingUp, ChevronDown, ChevronUp, BarChart3
 } from 'lucide-react'
 import { useAuth, type UserRole } from '@/context/AuthContext'
 import { useState } from 'react'
@@ -49,6 +49,8 @@ const navGroups: NavGroup[] = [
       { path: '/deposits', label: 'Deposits', Icon: ArrowDownCircle, requiredRoles: ['admin', 'operator', 'merchant'] },
       { path: '/payouts', label: 'Payouts', Icon: ArrowUpCircle, requiredRoles: ['admin', 'operator', 'merchant'] },
       { path: '/approvals', label: 'Approvals', Icon: CheckSquare, requiredRoles: ['admin', 'operator'] },
+      { path: '/deposits-transaction', label: 'Deposit Report', Icon: BarChart3, requiredRoles: ['admin', 'operator'] },
+      { path: '/payouts-transaction', label: 'Payout Report', Icon: BarChart3, requiredRoles: ['admin', 'operator'] },
     ],
   },
   {

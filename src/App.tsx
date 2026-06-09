@@ -27,6 +27,8 @@ import Vault from '@pages/Vault'
 import N8nIntegration from '@pages/N8nIntegration'
 import BinanceAPI from '@pages/BinanceAPI'
 import SMSReader from '@pages/SMSReader'
+import DepositsTransaction from '@pages/DepositsTransaction'
+import PayoutsTransaction from '@pages/PayoutsTransaction'
 
 export default function App() {
   return (
@@ -57,6 +59,8 @@ export default function App() {
             <Route path="/n8n" element={<ProtectedRoute requiredRoles={['admin', 'operator']}><N8nIntegration /></ProtectedRoute>} />
             <Route path="/binance" element={<ProtectedRoute requiredRoles={['admin', 'operator']}><BinanceAPI /></ProtectedRoute>} />
             <Route path="/sms-reader" element={<ProtectedRoute requiredRoles={['admin', 'operator']}><SMSReader /></ProtectedRoute>} />
+            <Route path="/deposits-transaction" element={<ProtectedRoute requiredRoles={['admin', 'operator']}><DepositsTransaction /></ProtectedRoute>} />
+            <Route path="/payouts-transaction" element={<ProtectedRoute requiredRoles={['admin', 'operator']}><PayoutsTransaction /></ProtectedRoute>} />
           </Route>
         </Routes>
         </Router>
