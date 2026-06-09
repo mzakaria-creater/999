@@ -1,152 +1,283 @@
-import { useState } from 'react'
-import { TrendingUp, AlertCircle, CheckCircle2, Clock, Wallet, Activity } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { TrendingUp, AlertCircle, CheckCircle2, Clock, Wallet, Activity, RefreshCw } from 'lucide-react'
 import Card from '@components/Card'
 import Chart from '@components/Chart'
 import TransactionTable from '@components/TransactionTable'
 import WalletManagementTable from '@components/WalletManagementTable'
 import MultiWalletCheckout from '@components/MultiWalletCheckout'
 import MultiWalletEngine from '@components/MultiWalletEngine'
-import iPhone3DMockup from '@components/3D/iPhone3DMockup'
-import TransactionFlow3D from '@components/3D/TransactionFlow3D'
 import KPIDetailsModal, { KPIDetail } from '@components/KPIDetailsModal'
+import api from '@/services/api'
+import { useFetch } from '@/hooks/useFetch'
 
-const kpiDetails: Record<string, KPIDetail> = {
-  volume: {
-    title: 'Payment Volume (24h)',
-    value: '$2.48M',
-    description: 'Total payment volume processed in the last 24 hours',
-    trend: { direction: 'up', percentage: 24 },
-    stats: [
-      { label: 'Peak Hour', value: '$320K', icon: '📊' },
-      { label: 'Avg Transaction', value: '$293', icon: '💳' },
-      { label: 'Total Txns', value: '8,450', icon: '✓' },
-      { label: 'Geographic', value: '12 Countries', icon: '🌍' },
-    ],
-    chart: 'volume24h',
-  },
-  transactions: {
-    title: 'Total Transactions',
-    value: '8,450',
-    description: 'Total number of transactions processed',
-    trend: { direction: 'up', percentage: 18 },
-    stats: [
-      { label: 'Successful', value: '8,421', icon: '✓' },
-      { label: 'Failed', value: '12', icon: '✗' },
-      { label: 'Pending', value: '17', icon: '⏳' },
-      { label: 'Avg Speed', value: '2.3s', icon: '⚡' },
-    ],
-    chart: 'transactions24h',
-  },
-  successRate: {
-    title: 'Success Rate',
-    value: '99.85%',
-    description: 'Percentage of successful transactions',
-    trend: { direction: 'up', percentage: 0.5 },
-    stats: [
-      { label: 'Uptime', value: '99.98%', icon: '✓' },
-      { label: 'Failed Txns', value: '12', icon: '✗' },
-      { label: 'Blocked', value: '8', icon: '🚫' },
-      { label: 'SLA Status', value: 'Met', icon: '📋' },
-    ],
-    chart: 'successRate24h',
-  },
-  walletHealth: {
-    title: 'Wallet Health',
-    value: '96%',
-    description: 'Overall health status of all wallets',
-    trend: { direction: 'up', percentage: 2 },
-    stats: [
-      { label: 'Healthy', value: '24/25', icon: '💚' },
-      { label: 'Warning', value: '1', icon: '⚠️' },
-      { label: 'Critical', value: '0', icon: '🔴' },
-      { label: 'Avg Capacity', value: '68%', icon: '📊' },
-    ],
-    chart: 'walletHealth24h',
-  },
-  pending: {
-    title: 'Pending Approvals',
-    value: '42',
-    description: 'Transactions awaiting approval',
-    trend: { direction: 'down', percentage: 5 },
-    stats: [
-      { label: 'High Priority', value: '8', icon: '🔴' },
-      { label: 'Medium', value: '18', icon: '🟡' },
-      { label: 'Low', value: '16', icon: '🟢' },
-      { label: 'Oldest', value: '45min', icon: '⏱️' },
-    ],
-    chart: 'pending24h',
-  },
-  failover: {
-    title: 'Active Failovers',
-    value: '2',
-    description: 'Currently active failover instances',
-    trend: { direction: 'down', percentage: 2 },
-    stats: [
-      { label: 'Gateway 1', value: 'Active', icon: '🟢' },
-      { label: 'Gateway 2', value: 'Standby', icon: '🟡' },
-      { label: 'Response Time', value: '142ms', icon: '⚡' },
-      { label: 'Availability', value: '99.5%', icon: '✓' },
-    ],
-    chart: 'failover24h',
-  },
+interface DashboardStats {
+  volume24h: number
+  volumeTrend: number
+  transactionCount: number
+  transactionTrend: number
+  successRate: number
+  successRateTrend: number
+  walletHealth: number
+  walletHealthTrend: number
+  pendingApprovals: number
+  pendingTrend: number
+  activeFailovers: number
+  failoverTrend: number
+  peakHour?: number
+  avgTransaction?: number
+  successfulCount?: number
+  failedCount?: number
+  uptime?: number
+  healthyWallets?: number
+  totalWallets?: number
+  countries?: number
 }
 
 export default function Dashboard() {
   const [showCheckout, setShowCheckout] = useState(false)
   const [selectedWallet, setSelectedWallet] = useState('')
   const [selectedKPI, setSelectedKPI] = useState<KPIDetail | null>(null)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+
+  // Fetch real data from API
+  const { data: stats, loading, error, refetch } = useFetch(
+    () => api.getDashboardStats(),
+    []
+  ) as any
+
+  // Default fallback while loading
+  const dashboardStats: DashboardStats = stats || {
+    volume24h: 0,
+    volumeTrend: 0,
+    transactionCount: 0,
+    transactionTrend: 0,
+    successRate: 0,
+    successRateTrend: 0,
+    walletHealth: 0,
+    walletHealthTrend: 0,
+    pendingApprovals: 0,
+    pendingTrend: 0,
+    activeFailovers: 0,
+    failoverTrend: 0,
+  }
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true)
+    try {
+      await refetch?.()
+    } finally {
+      setIsRefreshing(false)
+    }
+  }
+
+  // Generate KPI details from real data
+  const generateKPIDetails = (): Record<string, KPIDetail> => ({
+    volume: {
+      title: 'Payment Volume (24h)',
+      value: `$${(dashboardStats.volume24h / 1000000).toFixed(2)}M`,
+      description: 'Total payment volume processed in the last 24 hours',
+      trend: {
+        direction: dashboardStats.volumeTrend >= 0 ? 'up' : 'down',
+        percentage: Math.abs(dashboardStats.volumeTrend),
+      },
+      stats: [
+        { label: 'Peak Hour', value: `$${dashboardStats.peakHour?.toLocaleString() || '0'}`, icon: '📊' },
+        { label: 'Avg Transaction', value: `$${dashboardStats.avgTransaction?.toFixed(0) || '0'}`, icon: '💳' },
+        { label: 'Total Txns', value: dashboardStats.transactionCount.toLocaleString(), icon: '✓' },
+        { label: 'Countries', value: dashboardStats.countries?.toString() || '0', icon: '🌍' },
+      ],
+      chart: 'volume24h',
+    },
+    transactions: {
+      title: 'Total Transactions',
+      value: dashboardStats.transactionCount.toLocaleString(),
+      description: 'Total number of transactions processed',
+      trend: {
+        direction: dashboardStats.transactionTrend >= 0 ? 'up' : 'down',
+        percentage: Math.abs(dashboardStats.transactionTrend),
+      },
+      stats: [
+        { label: 'Successful', value: dashboardStats.successfulCount?.toLocaleString() || '0', icon: '✓' },
+        { label: 'Failed', value: dashboardStats.failedCount?.toLocaleString() || '0', icon: '✗' },
+        { label: 'Pending', value: '0', icon: '⏳' },
+        { label: 'Avg Speed', value: '2.3s', icon: '⚡' },
+      ],
+      chart: 'transactions24h',
+    },
+    successRate: {
+      title: 'Success Rate',
+      value: `${dashboardStats.successRate.toFixed(2)}%`,
+      description: 'Percentage of successful transactions',
+      trend: {
+        direction: dashboardStats.successRateTrend >= 0 ? 'up' : 'down',
+        percentage: Math.abs(dashboardStats.successRateTrend),
+      },
+      stats: [
+        { label: 'Uptime', value: `${dashboardStats.uptime?.toFixed(2) || '0'}%`, icon: '✓' },
+        { label: 'Failed Txns', value: dashboardStats.failedCount?.toLocaleString() || '0', icon: '✗' },
+        { label: 'Blocked', value: '0', icon: '🚫' },
+        { label: 'SLA Status', value: 'Met', icon: '📋' },
+      ],
+      chart: 'successRate24h',
+    },
+    walletHealth: {
+      title: 'Wallet Health',
+      value: `${dashboardStats.walletHealth.toFixed(0)}%`,
+      description: 'Overall health status of all wallets',
+      trend: {
+        direction: dashboardStats.walletHealthTrend >= 0 ? 'up' : 'down',
+        percentage: Math.abs(dashboardStats.walletHealthTrend),
+      },
+      stats: [
+        { label: 'Healthy', value: `${dashboardStats.healthyWallets}/${dashboardStats.totalWallets}`, icon: '💚' },
+        { label: 'Warning', value: '0', icon: '⚠️' },
+        { label: 'Critical', value: '0', icon: '🔴' },
+        { label: 'Avg Capacity', value: '68%', icon: '📊' },
+      ],
+      chart: 'walletHealth24h',
+    },
+    pending: {
+      title: 'Pending Approvals',
+      value: dashboardStats.pendingApprovals.toString(),
+      description: 'Transactions awaiting approval',
+      trend: {
+        direction: dashboardStats.pendingTrend >= 0 ? 'up' : 'down',
+        percentage: Math.abs(dashboardStats.pendingTrend),
+      },
+      stats: [
+        { label: 'High Priority', value: '0', icon: '🔴' },
+        { label: 'Medium', value: '0', icon: '🟡' },
+        { label: 'Low', value: '0', icon: '🟢' },
+        { label: 'Oldest', value: '0min', icon: '⏱️' },
+      ],
+      chart: 'pending24h',
+    },
+    failover: {
+      title: 'Active Failovers',
+      value: dashboardStats.activeFailovers.toString(),
+      description: 'Currently active failover instances',
+      trend: {
+        direction: dashboardStats.failoverTrend >= 0 ? 'up' : 'down',
+        percentage: Math.abs(dashboardStats.failoverTrend),
+      },
+      stats: [
+        { label: 'Gateway 1', value: 'Active', icon: '🟢' },
+        { label: 'Gateway 2', value: 'Standby', icon: '🟡' },
+        { label: 'Response Time', value: '142ms', icon: '⚡' },
+        { label: 'Availability', value: '99.5%', icon: '✓' },
+      ],
+      chart: 'failover24h',
+    },
+  })
+
+  const kpiDetails = generateKPIDetails()
+
+  if (error) {
+    return (
+      <div className="pb-8 px-4 md:px-8 max-w-7xl mx-auto w-full">
+        <div className="glossy-card rounded-2xl p-8 bg-accent-red/5 border border-accent-red/20 text-center">
+          <h2 className="text-2xl font-bold text-accent-red mb-2">Error Loading Dashboard</h2>
+          <p className="text-text-secondary mb-6">{error.message}</p>
+          <button
+            onClick={handleRefresh}
+            className="bg-accent-blue text-white font-bold px-6 py-3 rounded-xl hover:brightness-110 transition-all"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="pb-8 px-4 md:px-8 max-w-7xl mx-auto w-full">
       <div className="space-y-8">
-        {/* Header */}
-        <div className="animate-slide-down">
-          <h1 className="font-apple text-4xl font-bold text-text-primary mb-2">
-            Enterprise Dashboard
-          </h1>
-          <p className="text-text-secondary">Real-time payment platform metrics & operations</p>
+        {/* Header with Refresh */}
+        <div className="animate-slide-down flex justify-between items-start">
+          <div>
+            <h1 className="font-apple text-4xl font-bold text-text-primary mb-2">
+              Enterprise Dashboard
+            </h1>
+            <p className="text-text-secondary">Real-time payment platform metrics & operations</p>
+          </div>
+          <button
+            onClick={handleRefresh}
+            disabled={isRefreshing || loading}
+            className="flex items-center gap-2 bg-accent-blue text-white font-bold px-4 py-2 rounded-lg hover:brightness-110 transition-all disabled:opacity-50"
+          >
+            <RefreshCw size={18} className={isRefreshing ? 'animate-spin' : ''} />
+            {isRefreshing ? 'Refreshing...' : 'Refresh'}
+          </button>
         </div>
 
-        {/* KPI Cards Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 animate-slide-down" style={{ animationDelay: '0.05s' }}>
-          <Card
-            label="Volume (24h)"
-            value="$2.48M"
-            badge={{ text: '↑ 24%', type: 'success' }}
-            featured
-            onClick={() => setSelectedKPI(kpiDetails.volume)}
-          />
-          <Card
-            label="Transactions"
-            value="8,450"
-            badge={{ text: 'Real-time', type: 'success' }}
-            onClick={() => setSelectedKPI(kpiDetails.transactions)}
-          />
-          <Card
-            label="Success Rate"
-            value="99.85%"
-            badge={{ text: 'Optimal', type: 'success' }}
-            onClick={() => setSelectedKPI(kpiDetails.successRate)}
-          />
-          <Card
-            label="Wallet Health"
-            value="96%"
-            badge={{ text: 'Excellent', type: 'success' }}
-            onClick={() => setSelectedKPI(kpiDetails.walletHealth)}
-          />
-          <Card
-            label="Pending"
-            value="42"
-            badge={{ text: 'Review', type: 'pending' }}
-            onClick={() => setSelectedKPI(kpiDetails.pending)}
-          />
-          <Card
-            label="Failover"
-            value="2"
-            badge={{ text: 'Active', type: 'pending' }}
-            onClick={() => setSelectedKPI(kpiDetails.failover)}
-          />
-        </div>
+        {/* Loading State */}
+        {loading && !stats ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {Array(6)
+              .fill(0)
+              .map((_, idx) => (
+                <div key={idx} className="apple-card h-32 bg-white/[0.02] animate-pulse" />
+              ))}
+          </div>
+        ) : (
+          <>
+            {/* KPI Cards Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 animate-slide-down" style={{ animationDelay: '0.05s' }}>
+              <Card
+                label="Volume (24h)"
+                value={kpiDetails.volume.value}
+                badge={{
+                  text: `${dashboardStats.volumeTrend >= 0 ? '↑' : '↓'} ${Math.abs(dashboardStats.volumeTrend)}%`,
+                  type: dashboardStats.volumeTrend >= 0 ? 'success' : 'error',
+                }}
+                featured
+                onClick={() => setSelectedKPI(kpiDetails.volume)}
+              />
+              <Card
+                label="Transactions"
+                value={kpiDetails.transactions.value}
+                badge={{
+                  text: `${dashboardStats.transactionTrend >= 0 ? '↑' : '↓'} ${Math.abs(dashboardStats.transactionTrend)}%`,
+                  type: 'success',
+                }}
+                onClick={() => setSelectedKPI(kpiDetails.transactions)}
+              />
+              <Card
+                label="Success Rate"
+                value={kpiDetails.successRate.value}
+                badge={{
+                  text: `${dashboardStats.successRate > 99 ? 'Optimal' : 'Good'}`,
+                  type: dashboardStats.successRate > 99 ? 'success' : 'pending',
+                }}
+                onClick={() => setSelectedKPI(kpiDetails.successRate)}
+              />
+              <Card
+                label="Wallet Health"
+                value={kpiDetails.walletHealth.value}
+                badge={{
+                  text: `${dashboardStats.walletHealth > 90 ? 'Excellent' : 'Good'}`,
+                  type: dashboardStats.walletHealth > 90 ? 'success' : 'pending',
+                }}
+                onClick={() => setSelectedKPI(kpiDetails.walletHealth)}
+              />
+              <Card
+                label="Pending"
+                value={kpiDetails.pending.value}
+                badge={{ text: 'Review', type: 'pending' }}
+                onClick={() => setSelectedKPI(kpiDetails.pending)}
+              />
+              <Card
+                label="Failover"
+                value={kpiDetails.failover.value}
+                badge={{
+                  text: dashboardStats.activeFailovers > 0 ? 'Active' : 'Standby',
+                  type: dashboardStats.activeFailovers > 0 ? 'pending' : 'success',
+                }}
+                onClick={() => setSelectedKPI(kpiDetails.failover)}
+              />
+            </div>
+          </>
+        )}
 
         {/* KPI Details Modal */}
         <KPIDetailsModal
