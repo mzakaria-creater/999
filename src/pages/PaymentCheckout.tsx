@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Copy, CheckCircle2, AlertCircle, Upload, Clock, QrCode, Zap } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
+import { WalletAccount } from '@/types/wallet'
+import { INITIAL_WALLETS, AVAILABLE_CHANNELS, getWalletCost } from '@/data/wallets'
 
 interface Provider {
   id: string
@@ -10,14 +12,6 @@ interface Provider {
   icon: string
   ussdPrefix: string
   instructions: string[]
-}
-
-interface Wallet {
-  id: string
-  name: string
-  balance: number
-  icon: string
-  color: string
 }
 
 const providers: Provider[] = [
@@ -59,20 +53,34 @@ const providers: Provider[] = [
   },
 ]
 
-const wallets: Wallet[] = [
-  { id: '1', name: 'Vodafone Cash', balance: 500000, icon: '📱', color: '#e60000' },
-  { id: '2', name: 'InstaPay', balance: 250000, icon: '💳', color: '#0066cc' },
-  { id: '3', name: 'Commercial Bank', balance: 750000, icon: '🏦', color: '#1a5490' },
-  { id: '4', name: 'Stripe', balance: 150000, icon: '💎', color: '#635bff' },
-]
+const merchants = Array.from(new Set(INITIAL_WALLETS.map((w) => w.merchant).filter((m) => m !== 'all')))
 
-const merchants = ['Ahmed Electronics', 'Cairo Retail', 'Emirates Foods', 'Dubai Trade']
+const getProviderIcon = (provider: string): string => {
+  switch (provider) {
+    case 'Vodafone Cash':
+      return '📱'
+    case 'InstaPay':
+      return '💳'
+    case 'Bank Transfer':
+      return '🏦'
+    case 'Orange Cash':
+      return '🟠'
+    case 'Etisalat Cash':
+      return '💚'
+    case 'USDT':
+      return '₿'
+    case 'Wise':
+      return '💱'
+    default:
+      return '💰'
+  }
+}
 
 export default function PaymentCheckout() {
   const { t, language, dir } = useLanguage()
   const [transactionType, setTransactionType] = useState<'deposit' | 'payout'>('deposit')
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(providers[0])
-  const [selectedWallet, setSelectedWallet] = useState<Wallet | null>(wallets[0])
+  const [selectedWallet, setSelectedWallet] = useState<WalletAccount | null>(INITIAL_WALLETS[0])
   const [amount, setAmount] = useState('')
   const [email, setEmail] = useState('')
   const [merchantName, setMerchantName] = useState('')
@@ -442,29 +450,52 @@ export default function PaymentCheckout() {
           {transactionType === 'payout' && (
             <div className="glossy-card rounded-2xl p-6">
               <h3 className="text-lg font-bold text-text-primary mb-4">Select Wallet</h3>
-              <div className="space-y-3">
-                {wallets.map((wallet) => (
-                  <button
-                    key={wallet.id}
-                    onClick={() => setSelectedWallet(wallet)}
-                    className={`w-full p-4 rounded-xl transition-all border-2 text-left ${
-                      selectedWallet?.id === wallet.id
-                        ? 'border-white/[0.3] bg-white/[0.1]'
-                        : 'border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.06]'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl">{wallet.icon}</span>
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {INITIAL_WALLETS.filter((w) => w.active).map((wallet) => {
+                  const dailyUtilization = (wallet.used_today / wallet.daily_limit) * 100
+                  const cost = getWalletCost(wallet, parseFloat(amount || '0'))
+                  return (
+                    <button
+                      key={wallet.id}
+                      onClick={() => setSelectedWallet(wallet)}
+                      className={`w-full p-4 rounded-xl transition-all border-2 text-left ${
+                        selectedWallet?.id === wallet.id
+                          ? 'border-white/[0.3] bg-white/[0.1]'
+                          : 'border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.06]'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-3 flex-1">
+                          <span className="text-2xl">{getProviderIcon(wallet.provider)}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold text-text-primary truncate">{wallet.provider}</p>
+                            <p className="text-xs text-text-secondary">{wallet.label}</p>
+                          </div>
+                        </div>
+                        {selectedWallet?.id === wallet.id && <CheckCircle2 size={20} className="text-accent-blue flex-shrink-0" />}
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
                         <div>
-                          <p className="font-bold text-text-primary">{wallet.name}</p>
-                          <p className="text-sm text-text-secondary">EGP {wallet.balance.toLocaleString()}</p>
+                          <p className="text-text-secondary">Daily Limit</p>
+                          <p className="font-semibold text-text-primary">₦{wallet.daily_limit.toLocaleString()}</p>
+                        </div>
+                        <div>
+                          <p className="text-text-secondary">Used Today</p>
+                          <p className={`font-semibold ${dailyUtilization > 75 ? 'text-accent-orange' : 'text-accent-green'}`}>
+                            {dailyUtilization.toFixed(0)}%
+                          </p>
                         </div>
                       </div>
-                      {selectedWallet?.id === wallet.id && <CheckCircle2 size={20} className="text-accent-blue" />}
-                    </div>
-                  </button>
-                ))}
+                      {amount && (
+                        <div className="mt-2 text-xs border-t border-white/[0.08] pt-2">
+                          <p className="text-text-secondary">
+                            Estimated Cost: <span className="text-accent-orange font-semibold">₦{cost.toFixed(2)}</span>
+                          </p>
+                        </div>
+                      )}
+                    </button>
+                  )
+                })}
               </div>
             </div>
           )}
@@ -481,11 +512,19 @@ export default function PaymentCheckout() {
                 <span className="text-text-secondary">Amount:</span>
                 <span className="font-bold text-text-primary">EGP {parseFloat(amount || '0').toLocaleString()}</span>
               </div>
-              {transactionType === 'payout' && (
-                <div className="flex justify-between">
-                  <span className="text-text-secondary">Wallet:</span>
-                  <span className="font-bold text-text-primary">{selectedWallet?.name}</span>
-                </div>
+              {transactionType === 'payout' && selectedWallet && (
+                <>
+                  <div className="flex justify-between">
+                    <span className="text-text-secondary">Wallet:</span>
+                    <span className="font-bold text-text-primary">{selectedWallet.provider}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-text-secondary">Transaction Fee:</span>
+                    <span className="font-bold text-accent-orange">
+                      ₦{getWalletCost(selectedWallet, parseFloat(amount || '0')).toFixed(2)}
+                    </span>
+                  </div>
+                </>
               )}
             </div>
             <button
