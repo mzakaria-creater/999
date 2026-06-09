@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { LayoutDashboard, ArrowDownCircle, ArrowUpCircle, CheckSquare, Wallet, DollarSign, Users, Settings, Store, CreditCard, Globe, Brain } from 'lucide-react'
+import { LayoutDashboard, ArrowDownCircle, ArrowUpCircle, CheckSquare, Wallet, DollarSign, Users, Settings, Store, CreditCard, Globe, Brain, MapPin } from 'lucide-react'
 import { useAuth, type UserRole } from '@/context/AuthContext'
 
 interface NavItem {
@@ -18,6 +18,7 @@ const allNavItems: NavItem[] = [
   { path: '/', label: 'Dashboard', Icon: LayoutDashboard, requiredRoles: ['admin', 'operator', 'merchant', 'viewer'] },
   { path: '/command-center', label: 'Command Center', Icon: Globe, requiredRoles: ['admin', 'operator'] },
   { path: '/routing-engine', label: 'Routing Engine', Icon: Brain, requiredRoles: ['admin', 'operator'] },
+  { path: '/audit-map', label: 'Audit Map', Icon: MapPin, requiredRoles: ['admin', 'operator'] },
   { path: '/checkout', label: 'Payment', Icon: CreditCard, requiredRoles: ['admin', 'operator', 'merchant', 'viewer'] },
   { path: '/deposits', label: 'Deposits', Icon: ArrowDownCircle, requiredRoles: ['admin', 'operator', 'merchant'] },
   { path: '/payouts', label: 'Payouts', Icon: ArrowUpCircle, requiredRoles: ['admin', 'operator', 'merchant'] },

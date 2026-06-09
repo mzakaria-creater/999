@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Copy, CheckCircle2, AlertCircle, Mail, Wallet } from 'lucide-react'
+import { Copy, CheckCircle2, AlertCircle, Mail, Wallet, MapPin, Globe } from 'lucide-react'
 
 interface PaymentProvider {
   name: string
@@ -16,6 +16,16 @@ interface WalletOption {
   icon: string
 }
 
+interface LocationOption {
+  id: string
+  city: string
+  country: string
+  code: string
+  flag: string
+  lat: number
+  lng: number
+}
+
 const providers: Record<string, PaymentProvider> = {
   '010': { name: 'Vodafone Cash', color: '#e60000', ussd: '*9*7*', icon: '📱' },
   '011': { name: 'Etisalat Cash', color: '#719917', ussd: '*777*1*', icon: '💳' },
@@ -30,12 +40,22 @@ const mockWallets: WalletOption[] = [
   { id: 'stripe-intl', provider: 'Stripe', balance: 150000, color: '#635bff', icon: '💎' },
 ]
 
+const mockLocations: LocationOption[] = [
+  { id: 'cairo', city: 'Cairo', country: 'Egypt', code: 'EG', flag: '🇪🇬', lat: 30.0444, lng: 31.2357 },
+  { id: 'alexandria', city: 'Alexandria', country: 'Egypt', code: 'EG', flag: '🇪🇬', lat: 31.2001, lng: 29.9187 },
+  { id: 'dubai', city: 'Dubai', country: 'UAE', code: 'AE', flag: '🇦🇪', lat: 25.2048, lng: 55.2708 },
+  { id: 'abudhabi', city: 'Abu Dhabi', country: 'UAE', code: 'AE', flag: '🇦🇪', lat: 24.4539, lng: 54.3773 },
+  { id: 'riyadh', city: 'Riyadh', country: 'KSA', code: 'SA', flag: '🇸🇦', lat: 24.7136, lng: 46.6753 },
+  { id: 'jeddah', city: 'Jeddah', country: 'KSA', code: 'SA', flag: '🇸🇦', lat: 21.5433, lng: 39.1727 },
+]
+
 export default function PaymentCheckout() {
   const [phone, setPhone] = useState('')
   const [amount, setAmount] = useState('')
   const [email, setEmail] = useState('')
   const [merchantName, setMerchantName] = useState('')
   const [selectedWallet, setSelectedWallet] = useState<WalletOption | null>(null)
+  const [selectedLocation, setSelectedLocation] = useState<LocationOption | null>(mockLocations[0])
   const [provider, setProvider] = useState<PaymentProvider | null>(null)
   const [showResult, setShowResult] = useState(false)
   const [ussdCode, setUssdCode] = useState('')
@@ -148,6 +168,7 @@ export default function PaymentCheckout() {
     setEmail('')
     setMerchantName('')
     setSelectedWallet(null)
+    setSelectedLocation(mockLocations[0])
     setProvider(null)
     setShowResult(false)
     setUssdCode('')
@@ -167,6 +188,30 @@ export default function PaymentCheckout() {
         {!showResult ? (
           // Payment Form
           <div className="apple-surface rounded-2xl p-8 space-y-6">
+            {/* Location Selection */}
+            <div>
+              <label className="block text-sm font-semibold text-text-secondary mb-3">
+                <MapPin size={16} className="inline mr-1" /> Transaction Location
+              </label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {mockLocations.map((location) => (
+                  <button
+                    key={location.id}
+                    onClick={() => setSelectedLocation(location)}
+                    className={`p-3 rounded-xl border-2 transition-all text-left ${
+                      selectedLocation?.id === location.id
+                        ? 'border-accent-blue bg-accent-blue/10'
+                        : 'border-white/[0.08] hover:border-white/[0.15] bg-apple-gray5'
+                    }`}
+                  >
+                    <div className="text-2xl mb-2">{location.flag}</div>
+                    <div className="text-sm font-semibold text-text-primary">{location.city}</div>
+                    <div className="text-xs text-text-secondary">{location.country}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Merchant Info */}
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -323,6 +368,12 @@ export default function PaymentCheckout() {
                   <span className="text-text-secondary">Payment Wallet:</span>
                   <span className="font-semibold text-text-primary flex items-center gap-2">
                     <span>{selectedWallet?.icon}</span> {selectedWallet?.provider}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-text-secondary">Location:</span>
+                  <span className="font-semibold text-text-primary flex items-center gap-2">
+                    <span>{selectedLocation?.flag}</span> {selectedLocation?.city}, {selectedLocation?.country}
                   </span>
                 </div>
                 <div className="flex justify-between">
