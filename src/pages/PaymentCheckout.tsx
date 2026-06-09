@@ -49,7 +49,17 @@ const mockLocations: LocationOption[] = [
   { id: 'jeddah', city: 'Jeddah', country: 'KSA', code: 'SA', flag: '🇸🇦', lat: 21.5433, lng: 39.1727 },
 ]
 
+const merchantWalletAssignments: Record<string, WalletOption> = {
+  'Ahmed Electronics': mockWallets[0], // Vodafone
+  'Cairo Retail': mockWallets[1], // InstaPay
+  'Emirates Foods': mockWallets[2], // Commercial Bank
+  'Dubai Trade': mockWallets[3], // Stripe
+}
+
+type TransactionType = 'deposit' | 'payout'
+
 export default function PaymentCheckout() {
+  const [transactionType, setTransactionType] = useState<TransactionType>('deposit')
   const [phone, setPhone] = useState('')
   const [amount, setAmount] = useState('')
   const [email, setEmail] = useState('')
@@ -64,6 +74,7 @@ export default function PaymentCheckout() {
   const [copied, setCopied] = useState(false)
   const [transactionId, setTransactionId] = useState('')
   const [walletBalance, setWalletBalance] = useState(0)
+  const [assignedMerchantWallet, setAssignedMerchantWallet] = useState<WalletOption | null>(null)
 
   useEffect(() => {
     const prefix = phone.substring(0, 3)
@@ -84,24 +95,38 @@ export default function PaymentCheckout() {
       return
     }
 
-    if (!selectedWallet) {
-      alert('Please select a wallet to deduct payment from')
+    if (!email || !merchantName) {
+      alert('Please enter email and merchant name for invoice')
       return
     }
 
     const paymentAmount = parseFloat(amount)
-    if (paymentAmount > selectedWallet.balance) {
-      alert(`Insufficient balance. Wallet has ${(selectedWallet.balance / 1000).toFixed(0)}K`)
-      return
+
+    // DEPOSIT: Uses merchant's assigned wallet (no client wallet selection/deduction needed)
+    if (transactionType === 'deposit') {
+      const merchantWallet = merchantWalletAssignments[merchantName]
+      if (!merchantWallet) {
+        alert(`No wallet assigned to merchant: ${merchantName}`)
+        return
+      }
+      setAssignedMerchantWallet(merchantWallet)
+    }
+
+    // PAYOUT: Requires client wallet selection and balance validation
+    if (transactionType === 'payout') {
+      if (!selectedWallet) {
+        alert('Please select a wallet to deduct payment from')
+        return
+      }
+
+      if (paymentAmount > selectedWallet.balance) {
+        alert(`Insufficient balance. Wallet has ${(selectedWallet.balance / 1000).toFixed(0)}K`)
+        return
+      }
     }
 
     if (!provider) {
       alert('This provider is not supported')
-      return
-    }
-
-    if (!email || !merchantName) {
-      alert('Please enter email and merchant name for invoice')
       return
     }
 
@@ -112,9 +137,11 @@ export default function PaymentCheckout() {
       const txnId = generateTransactionId()
       setTransactionId(txnId)
 
-      // Deduct from selected wallet
-      const newBalance = selectedWallet.balance - paymentAmount
-      setWalletBalance(newBalance)
+      // Handle wallet deduction based on transaction type
+      if (transactionType === 'payout' && selectedWallet) {
+        const newBalance = selectedWallet.balance - paymentAmount
+        setWalletBalance(newBalance)
+      }
 
       // Generate USSD code
       const ussd = `${provider.ussd}${phone}*${amount}#`
@@ -124,18 +151,37 @@ export default function PaymentCheckout() {
       const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(ussd)}`
       setQrCode(qrUrl)
 
-      // Send email invoice
-      await sendEmailInvoice({
+      // Prepare invoice data based on transaction type
+      const invoiceData = {
         transactionId: txnId,
         contactName: merchantName,
         email: email,
         phone: phone,
         amount: paymentAmount,
-        walletProvider: selectedWallet.provider,
-        walletBalance: newBalance,
+        transactionType: transactionType,
         provider: provider.name,
         paymentDate: new Date().toLocaleDateString(),
-      })
+      }
+
+      if (transactionType === 'deposit') {
+        // DEPOSIT: Use merchant's assigned wallet
+        Object.assign(invoiceData, {
+          walletProvider: assignedMerchantWallet?.provider,
+          walletUsed: 'Merchant Assigned Wallet',
+          walletAction: 'CREDIT (receives funds)',
+        })
+      } else {
+        // PAYOUT: Deduct from client wallet
+        Object.assign(invoiceData, {
+          walletProvider: selectedWallet?.provider,
+          walletUsed: 'Client Wallet',
+          walletBalance: walletBalance,
+          walletAction: 'DEBIT (sends funds)',
+        })
+      }
+
+      // Send email invoice
+      await sendEmailInvoice(invoiceData)
 
       setShowResult(true)
     } catch (error) {
@@ -175,6 +221,7 @@ export default function PaymentCheckout() {
     setQrCode('')
     setTransactionId('')
     setWalletBalance(0)
+    setAssignedMerchantWallet(null)
   }
 
   return (
@@ -188,6 +235,37 @@ export default function PaymentCheckout() {
         {!showResult ? (
           // Payment Form
           <div className="apple-surface rounded-2xl p-8 space-y-6">
+            {/* Transaction Type Selector */}
+            <div>
+              <label className="block text-sm font-semibold text-text-secondary mb-3">
+                Transaction Type
+              </label>
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  onClick={() => setTransactionType('deposit')}
+                  className={`p-4 rounded-xl border-2 transition-all text-left font-semibold ${
+                    transactionType === 'deposit'
+                      ? 'border-accent-green bg-accent-green/10 text-accent-green'
+                      : 'border-white/[0.08] hover:border-white/[0.15] bg-apple-gray5 text-text-secondary'
+                  }`}
+                >
+                  📥 DEPOSIT
+                  <p className="text-xs text-current opacity-75 mt-1">Merchant receives funds</p>
+                </button>
+                <button
+                  onClick={() => setTransactionType('payout')}
+                  className={`p-4 rounded-xl border-2 transition-all text-left font-semibold ${
+                    transactionType === 'payout'
+                      ? 'border-accent-orange bg-accent-orange/10 text-accent-orange'
+                      : 'border-white/[0.08] hover:border-white/[0.15] bg-apple-gray5 text-text-secondary'
+                  }`}
+                >
+                  📤 PAYOUT
+                  <p className="text-xs text-current opacity-75 mt-1">You send funds</p>
+                </button>
+              </div>
+            </div>
+
             {/* Location Selection */}
             <div>
               <label className="block text-sm font-semibold text-text-secondary mb-3">
@@ -240,36 +318,65 @@ export default function PaymentCheckout() {
               </div>
             </div>
 
-            {/* Wallet Selection */}
-            <div>
-              <label className="block text-sm font-semibold text-text-secondary mb-2">
-                <Wallet size={16} className="inline mr-1" /> Select Payment Wallet
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                {mockWallets.map((wallet) => (
-                  <button
-                    key={wallet.id}
-                    onClick={() => setSelectedWallet(wallet)}
-                    className={`p-4 rounded-xl border-2 transition-all text-left ${
-                      selectedWallet?.id === wallet.id
-                        ? 'border-accent-blue bg-accent-blue/10'
-                        : 'border-white/[0.08] hover:border-white/[0.15] bg-apple-gray5'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-2xl">{wallet.icon}</span>
-                      {selectedWallet?.id === wallet.id && (
-                        <CheckCircle2 size={18} className="text-accent-blue" />
-                      )}
+            {/* Wallet Section - Different based on transaction type */}
+            {transactionType === 'deposit' ? (
+              // DEPOSIT: Show merchant's assigned wallet (read-only)
+              <div>
+                <label className="block text-sm font-semibold text-text-secondary mb-3">
+                  <Wallet size={16} className="inline mr-1" /> Merchant Assigned Wallet (Auto)
+                </label>
+                <div className="p-4 rounded-xl border-2 border-accent-green/30 bg-accent-green/10">
+                  {merchantWalletAssignments[merchantName] ? (
+                    <div>
+                      <div className="flex items-center gap-3 mb-3">
+                        <span className="text-2xl">{merchantWalletAssignments[merchantName].icon}</span>
+                        <div>
+                          <p className="font-semibold text-text-primary">{merchantWalletAssignments[merchantName].provider}</p>
+                          <p className="text-xs text-accent-green font-bold">
+                            Merchant receives: {parseFloat(amount || '0').toLocaleString()} EGP
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-text-secondary">Balance: {(merchantWalletAssignments[merchantName].balance / 1000).toFixed(0)}K EGP</p>
                     </div>
-                    <div className="text-sm font-semibold text-text-primary">{wallet.provider}</div>
-                    <div className="text-xs text-text-secondary mt-1">
-                      {(wallet.balance / 1000).toFixed(0)}K EGP
-                    </div>
-                  </button>
-                ))}
+                  ) : (
+                    <p className="text-sm text-text-secondary">Enter merchant name to see assigned wallet</p>
+                  )}
+                </div>
+                <p className="text-xs text-accent-green mt-2">✓ No wallet balance deduction (merchant wallet receives credit)</p>
               </div>
-            </div>
+            ) : (
+              // PAYOUT: Show client wallet selector for deduction
+              <div>
+                <label className="block text-sm font-semibold text-text-secondary mb-2">
+                  <Wallet size={16} className="inline mr-1" /> Select Wallet to Deduct From
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  {mockWallets.map((wallet) => (
+                    <button
+                      key={wallet.id}
+                      onClick={() => setSelectedWallet(wallet)}
+                      className={`p-4 rounded-xl border-2 transition-all text-left ${
+                        selectedWallet?.id === wallet.id
+                          ? 'border-accent-orange bg-accent-orange/10'
+                          : 'border-white/[0.08] hover:border-white/[0.15] bg-apple-gray5'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-2xl">{wallet.icon}</span>
+                        {selectedWallet?.id === wallet.id && (
+                          <CheckCircle2 size={18} className="text-accent-orange" />
+                        )}
+                      </div>
+                      <div className="text-sm font-semibold text-text-primary">{wallet.provider}</div>
+                      <div className="text-xs text-text-secondary mt-1">
+                        {(wallet.balance / 1000).toFixed(0)}K EGP
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Phone & Amount */}
             <div className="grid grid-cols-2 gap-4">
@@ -323,13 +430,23 @@ export default function PaymentCheckout() {
             {/* Submit Button */}
             <button
               onClick={handlePayment}
-              disabled={loading || !phone || !amount || !email || !merchantName || !selectedWallet}
+              disabled={
+                loading ||
+                !phone ||
+                !amount ||
+                !email ||
+                !merchantName ||
+                (transactionType === 'payout' && !selectedWallet)
+              }
               className="w-full btn flex items-center justify-center gap-2 disabled:opacity-50"
               style={{
-                background: provider?.color || '#007AFF',
+                background:
+                  transactionType === 'deposit'
+                    ? '#10b981'
+                    : provider?.color || '#007AFF',
               }}
             >
-              {loading ? '⏳ Processing...' : '✓ Generate Payment Code'}
+              {loading ? '⏳ Processing...' : `✓ Generate ${transactionType === 'deposit' ? 'Deposit' : 'Payout'} Code`}
             </button>
           </div>
         ) : (
@@ -365,11 +482,32 @@ export default function PaymentCheckout() {
                   <span className="font-semibold text-accent-blue">{amount} EGP</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-text-secondary">Payment Wallet:</span>
-                  <span className="font-semibold text-text-primary flex items-center gap-2">
-                    <span>{selectedWallet?.icon}</span> {selectedWallet?.provider}
+                  <span className="text-text-secondary">Transaction Type:</span>
+                  <span className="font-semibold uppercase" style={{ color: transactionType === 'deposit' ? '#10b981' : '#ff9f0a' }}>
+                    {transactionType === 'deposit' ? '📥 Deposit' : '📤 Payout'}
                   </span>
                 </div>
+                <div className="flex justify-between">
+                  <span className="text-text-secondary">
+                    {transactionType === 'deposit' ? 'Merchant Wallet (Receives):' : 'Payout Wallet (Deducts):'}
+                  </span>
+                  <span className="font-semibold text-text-primary flex items-center gap-2">
+                    <span>
+                      {transactionType === 'deposit'
+                        ? assignedMerchantWallet?.icon
+                        : selectedWallet?.icon}
+                    </span>
+                    {transactionType === 'deposit'
+                      ? assignedMerchantWallet?.provider
+                      : selectedWallet?.provider}
+                  </span>
+                </div>
+                {transactionType === 'payout' && (
+                  <div className="flex justify-between">
+                    <span className="text-text-secondary">Remaining Balance:</span>
+                    <span className="font-semibold text-accent-green">{(walletBalance / 1000).toFixed(0)}K EGP</span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span className="text-text-secondary">Location:</span>
                   <span className="font-semibold text-text-primary flex items-center gap-2">
@@ -377,11 +515,7 @@ export default function PaymentCheckout() {
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-text-secondary">Remaining Balance:</span>
-                  <span className="font-semibold text-accent-green">{(walletBalance / 1000).toFixed(0)}K EGP</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-text-secondary">Recipient Provider:</span>
+                  <span className="text-text-secondary">USSD Provider:</span>
                   <span className="font-semibold" style={{ color: provider?.color }}>
                     {provider?.icon} {provider?.name}
                   </span>
