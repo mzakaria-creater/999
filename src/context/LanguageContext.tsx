@@ -89,7 +89,20 @@ const translations: Translations = {
   'active': { en: 'Active', ar: 'نشط' },
   'inactive': { en: 'Inactive', ar: 'غير نشط' },
   'recent_activity': { en: 'Recent Activity', ar: 'النشاط الأخير' },
+  'api_servers': { en: 'API Servers', ar: 'خوادم API' },
+  'database': { en: 'Database', ar: 'قاعدة البيانات' },
+  'gateway': { en: 'Gateway', ar: 'البوابة' },
+  'operational': { en: 'Operational', ar: 'تشغيلي' },
+  'system_status': { en: 'System Status', ar: 'حالة النظام' },
+  'quick_actions': { en: 'Quick Actions', ar: 'الإجراءات السريعة' },
+  'process_payment': { en: 'Process Payment', ar: 'معالجة الدفع' },
+  'view_reports': { en: 'View Reports', ar: 'عرض التقارير' },
+  'manage_wallets': { en: 'Manage Wallets', ar: 'إدارة المحافظ' },
+  'enterprise_dashboard': { en: 'Enterprise Dashboard', ar: 'لوحة المراقبة' },
+  'realtime_metrics': { en: 'Real-time payment platform metrics & operations', ar: 'مقاييس منصة الدفع الفورية والعمليات' },
 }
+
+export { translations as defaultTranslations }
 
 interface LanguageContextType {
   language: Language
