@@ -13,6 +13,7 @@ import CostManagement from '@pages/CostManagement'
 import Merchants from '@pages/Merchants'
 import Users from '@pages/Users'
 import Settings from '@pages/Settings'
+import PaymentCheckout from '@pages/PaymentCheckout'
 
 export default function App() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
             <Route path="/merchants" element={<ProtectedRoute requiredRoles={['admin', 'operator']}><Merchants /></ProtectedRoute>} />
             <Route path="/users" element={<ProtectedRoute requiredRoles={['admin']}><Users /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute requiredRoles={['admin']}><Settings /></ProtectedRoute>} />
+            <Route path="/checkout" element={<PaymentCheckout />} />
           </Route>
         </Routes>
       </Router>
