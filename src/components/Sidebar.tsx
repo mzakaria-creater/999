@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, ArrowDownCircle, ArrowUpCircle, CheckSquare, Wallet, DollarSign, Users,
   Settings, Store, CreditCard, Globe, Brain, MapPin, Zap, Sparkles, Gauge, User, Lock,
-  MessageSquare, Workflow, TrendingUp, ChevronDown, ChevronUp, BarChart3
+  MessageSquare, Workflow, TrendingUp, ChevronDown, ChevronUp, BarChart3, Send
 } from 'lucide-react'
 import { useAuth, type UserRole } from '@/context/AuthContext'
 import { useState } from 'react'
@@ -75,6 +75,7 @@ const navGroups: NavGroup[] = [
       { path: '/n8n', label: 'n8n', Icon: Workflow, requiredRoles: ['admin', 'operator'] },
       { path: '/binance', label: 'Binance', Icon: TrendingUp, requiredRoles: ['admin', 'operator'] },
       { path: '/sms-reader', label: 'SMS Reader', Icon: MessageSquare, requiredRoles: ['admin', 'operator'] },
+      { path: '/telegram', label: 'Telegram', Icon: Send, requiredRoles: ['admin', 'operator', 'merchant', 'viewer'] },
       { path: '/vault', label: 'Vault', Icon: Lock, requiredRoles: ['admin'] },
     ],
   },
