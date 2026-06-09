@@ -17,7 +17,7 @@ export default function Layout() {
 
         {/* Content Area - responsive margin */}
         <main className="flex-1 overflow-y-auto pt-16 md:pt-0">
-          <div className="md:ml-64">
+          <div className="md:ml-64 slide-in-up">
             <Outlet />
           </div>
         </main>
