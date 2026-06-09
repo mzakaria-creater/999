@@ -6,9 +6,10 @@ interface CardProps {
     type: 'success' | 'pending' | 'error'
   }
   featured?: boolean
+  onClick?: () => void
 }
 
-export default function Card({ label, value, badge, featured }: CardProps) {
+export default function Card({ label, value, badge, featured, onClick }: CardProps) {
   const badgeClasses = {
     success: 'badge-success',
     pending: 'badge-pending',
@@ -16,7 +17,10 @@ export default function Card({ label, value, badge, featured }: CardProps) {
   }
 
   return (
-    <div className={`apple-card ${featured ? 'animate-apple-pulse' : ''}`}>
+    <div
+      className={`apple-card ${featured ? 'animate-apple-pulse' : ''} ${onClick ? 'cursor-pointer hover:scale-105 transition-transform' : ''}`}
+      onClick={onClick}
+    >
       <p className="text-xs uppercase tracking-widest text-text-secondary font-semibold font-apple mb-3">
         {label}
       </p>
