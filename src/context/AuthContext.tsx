@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, ReactNode } from 'react'
 
-export type UserRole = 'admin' | 'operator' | 'merchant' | 'viewer'
+export type UserRole = 'admin' | 'operator' | 'merchant' | 'financial' | 'owner' | 'viewer'
 
 interface User {
   id: string
@@ -16,7 +16,7 @@ interface AuthContextType {
   login: (email: string, password: string, role: UserRole) => void
   logout: () => void
   switchRole: (role: UserRole) => void
-  hasPermission: (requiredRole: UserRole[]) => boolean
+  hasPermission: (requiredRoles: UserRole[]) => boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)

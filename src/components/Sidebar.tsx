@@ -2,7 +2,8 @@ import { Link, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, ArrowDownCircle, ArrowUpCircle, CheckSquare, Wallet, DollarSign, Users,
   Settings, Store, CreditCard, Globe, Brain, MapPin, Zap, Sparkles, Gauge, User, Lock,
-  MessageSquare, Workflow, TrendingUp, ChevronDown, ChevronUp, BarChart3, Send, Briefcase
+  MessageSquare, Workflow, TrendingUp, ChevronDown, ChevronUp, BarChart3, Send, Briefcase,
+  Shield, Radio, Landmark, Target
 } from 'lucide-react'
 import { useAuth, type UserRole } from '@/context/AuthContext'
 import { useState } from 'react'
@@ -19,80 +20,94 @@ interface NavGroup {
   items: NavItem[]
 }
 
+import { useLanguage } from '@/context/LanguageContext'
+
 interface SidebarProps {
   isOpen?: boolean
   onClose?: () => void
+  isCollapsed: boolean
+  setIsCollapsed: (collapsed: boolean) => void
 }
 
 const navGroups: NavGroup[] = [
   {
     name: 'Dashboard',
     items: [
-      { path: '/', label: 'Dashboard', Icon: LayoutDashboard, requiredRoles: ['admin', 'operator', 'merchant', 'viewer'] },
-      { path: '/production', label: 'Production Hub', Icon: Gauge, requiredRoles: ['admin', 'operator'] },
-      { path: '/glossy-showcase', label: 'Glossy 3D', Icon: Sparkles, requiredRoles: ['admin', 'operator', 'merchant', 'viewer'] },
+      { path: '/', label: 'Dashboard', Icon: LayoutDashboard, requiredRoles: ['admin', 'operator', 'merchant', 'financial', 'owner', 'viewer'] },
+      { path: '/production', label: 'Production Hub', Icon: Gauge, requiredRoles: ['admin', 'operator', 'owner'] },
+      { path: '/glossy-showcase', label: 'Glossy 3D', Icon: Sparkles, requiredRoles: ['admin', 'operator', 'merchant', 'financial', 'owner', 'viewer'] },
+    ],
+  },
+  {
+    name: 'Portals',
+    items: [
+      { path: '/admin-portal', label: 'Admin Portal', Icon: Shield, requiredRoles: ['admin', 'owner'] },
+      { path: '/merchant-portal', label: 'Merchant Portal', Icon: Briefcase, requiredRoles: ['merchant', 'admin', 'owner', 'financial', 'operator'] },
+      { path: '/operator-portal', label: 'Operator Portal', Icon: Radio, requiredRoles: ['operator', 'admin', 'owner'] },
+      { path: '/financial-portal', label: 'Financial Portal', Icon: Landmark, requiredRoles: ['financial', 'admin', 'owner'] },
+      { path: '/owner-portal', label: 'Owner Portal', Icon: Target, requiredRoles: ['owner', 'admin'] },
     ],
   },
   {
     name: 'Command Center',
     items: [
-      { path: '/command-center', label: 'Command Center', Icon: Globe, requiredRoles: ['admin', 'operator'] },
-      { path: '/routing-engine', label: 'Routing Engine', Icon: Brain, requiredRoles: ['admin', 'operator'] },
-      { path: '/audit-map', label: 'Audit Map', Icon: MapPin, requiredRoles: ['admin', 'operator'] },
-      { path: '/mena-payments', label: 'MENA Payments', Icon: Zap, requiredRoles: ['admin', 'operator'] },
+      { path: '/command-center', label: 'Command Center', Icon: Globe, requiredRoles: ['admin', 'operator', 'owner'] },
+      { path: '/routing-engine', label: 'Routing Engine', Icon: Brain, requiredRoles: ['admin', 'operator', 'owner'] },
+      { path: '/audit-map', label: 'Audit Map', Icon: MapPin, requiredRoles: ['admin', 'operator', 'owner'] },
+      { path: '/mena-payments', label: 'MENA Payments', Icon: Zap, requiredRoles: ['admin', 'operator', 'owner'] },
+      { path: '/mena-gateway', label: 'MENA Gateway', Icon: Store, requiredRoles: ['admin', 'operator', 'owner'] },
     ],
   },
   {
     name: 'Transactions',
     items: [
-      { path: '/checkout', label: 'Payment', Icon: CreditCard, requiredRoles: ['admin', 'operator', 'merchant', 'viewer'] },
-      { path: '/deposits', label: 'Deposits', Icon: ArrowDownCircle, requiredRoles: ['admin', 'operator', 'merchant'] },
-      { path: '/payouts', label: 'Payouts', Icon: ArrowUpCircle, requiredRoles: ['admin', 'operator', 'merchant'] },
-      { path: '/approvals', label: 'Approvals', Icon: CheckSquare, requiredRoles: ['admin', 'operator'] },
-      { path: '/deposits-transaction', label: 'Deposit Report', Icon: BarChart3, requiredRoles: ['admin', 'operator'] },
-      { path: '/payouts-transaction', label: 'Payout Report', Icon: BarChart3, requiredRoles: ['admin', 'operator'] },
+      { path: '/checkout', label: 'Payment', Icon: CreditCard, requiredRoles: ['admin', 'operator', 'merchant', 'financial', 'owner', 'viewer'] },
+      { path: '/deposits', label: 'Deposits', Icon: ArrowDownCircle, requiredRoles: ['admin', 'operator', 'merchant', 'financial', 'owner'] },
+      { path: '/payouts', label: 'Payouts', Icon: ArrowUpCircle, requiredRoles: ['admin', 'operator', 'merchant', 'financial', 'owner'] },
+      { path: '/approvals', label: 'Approvals', Icon: CheckSquare, requiredRoles: ['admin', 'operator', 'owner'] },
+      { path: '/deposits-transaction', label: 'Deposit Report', Icon: BarChart3, requiredRoles: ['admin', 'operator', 'financial', 'owner'] },
+      { path: '/payouts-transaction', label: 'Payout Report', Icon: BarChart3, requiredRoles: ['admin', 'operator', 'financial', 'owner'] },
     ],
   },
   {
     name: 'Wallets',
     items: [
-      { path: '/wallets', label: 'Wallets', Icon: Wallet, requiredRoles: ['admin', 'operator'] },
-      { path: '/wallet-pool', label: 'Wallet Pool', Icon: Wallet, requiredRoles: ['admin', 'operator'] },
-      { path: '/costs', label: 'Costs', Icon: DollarSign, requiredRoles: ['admin', 'operator'] },
+      { path: '/wallets', label: 'Wallets', Icon: Wallet, requiredRoles: ['admin', 'operator', 'financial', 'owner'] },
+      { path: '/wallet-pool', label: 'Wallet Pool', Icon: Wallet, requiredRoles: ['admin', 'operator', 'financial', 'owner'] },
+      { path: '/costs', label: 'Costs', Icon: DollarSign, requiredRoles: ['admin', 'operator', 'financial', 'owner'] },
     ],
   },
   {
     name: 'Management',
     items: [
-      { path: '/merchant-portal', label: 'Merchant Portal', Icon: Briefcase, requiredRoles: ['merchant', 'admin', 'operator'] },
-      { path: '/merchants', label: 'Merchants', Icon: Store, requiredRoles: ['admin', 'operator'] },
-      { path: '/users', label: 'Users', Icon: Users, requiredRoles: ['admin'] },
-      { path: '/account', label: 'Account', Icon: User, requiredRoles: ['admin', 'operator', 'merchant', 'viewer'] },
+      { path: '/merchants', label: 'Merchants', Icon: Store, requiredRoles: ['admin', 'operator', 'owner'] },
+      { path: '/users', label: 'Users', Icon: Users, requiredRoles: ['admin', 'owner'] },
+      { path: '/account', label: 'Account', Icon: User, requiredRoles: ['admin', 'operator', 'merchant', 'financial', 'owner', 'viewer'] },
     ],
   },
   {
     name: 'Integration',
     items: [
-      { path: '/n8n', label: 'n8n', Icon: Workflow, requiredRoles: ['admin', 'operator'] },
-      { path: '/binance', label: 'Binance', Icon: TrendingUp, requiredRoles: ['admin', 'operator'] },
-      { path: '/sms-reader', label: 'SMS Reader', Icon: MessageSquare, requiredRoles: ['admin', 'operator'] },
-      { path: '/telegram', label: 'Telegram', Icon: Send, requiredRoles: ['admin', 'operator', 'merchant', 'viewer'] },
-      { path: '/vault', label: 'Vault', Icon: Lock, requiredRoles: ['admin'] },
+      { path: '/n8n', label: 'n8n', Icon: Workflow, requiredRoles: ['admin', 'operator', 'owner'] },
+      { path: '/binance', label: 'Binance', Icon: TrendingUp, requiredRoles: ['admin', 'operator', 'owner'] },
+      { path: '/sms-reader', label: 'SMS Reader', Icon: MessageSquare, requiredRoles: ['admin', 'operator', 'owner'] },
+      { path: '/telegram', label: 'Telegram', Icon: Send, requiredRoles: ['admin', 'operator', 'merchant', 'financial', 'owner', 'viewer'] },
+      { path: '/vault', label: 'Vault', Icon: Lock, requiredRoles: ['admin', 'owner'] },
     ],
   },
   {
     name: 'Settings',
     items: [
-      { path: '/settings', label: 'Settings', Icon: Settings, requiredRoles: ['admin'] },
+      { path: '/settings', label: 'Settings', Icon: Settings, requiredRoles: ['admin', 'owner'] },
     ],
   },
 ]
 
-export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
+export default function Sidebar({ isOpen = false, onClose, isCollapsed, setIsCollapsed }: SidebarProps) {
   const location = useLocation()
   const { user } = useAuth()
-  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(['Dashboard', 'Transactions']))
-  const [isCollapsed, setIsCollapsed] = useState(false)
+  const { dir } = useLanguage()
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(['Dashboard', 'Portals', 'Transactions']))
   const [isHovering, setIsHovering] = useState(false)
 
   const toggleGroup = (groupName: string) => {
@@ -127,8 +142,10 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
 
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-16 h-[calc(100vh-64px)] bg-apple-gray6 border-r border-white/[0.06] overflow-y-auto px-4 py-6 z-40 transition-all duration-300 ${sidebarWidth} ${
-          isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        className={`fixed top-16 h-[calc(100vh-64px)] bg-apple-gray6 overflow-y-auto px-4 py-6 z-40 transition-all duration-300 ${sidebarWidth} ${
+          dir === 'rtl'
+            ? `right-0 border-l border-white/[0.06] ${isOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}`
+            : `left-0 border-r border-white/[0.06] ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`
         }`}
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}

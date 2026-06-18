@@ -625,3 +625,32 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255,255,255,0.25);
 }
+
+/* Responsive Margin Shifts for Sidebar Layout (RTL & LTR, Expanded & Collapsed) */
+@media (min-width: 768px) {
+  .content-shift-rtl-expanded {
+    margin-right: 256px;
+    margin-left: 0;
+  }
+  .content-shift-rtl-collapsed {
+    margin-right: 80px;
+    margin-left: 0;
+  }
+  .content-shift-ltr-expanded {
+    margin-left: 256px;
+    margin-right: 0;
+  }
+  .content-shift-ltr-collapsed {
+    margin-left: 80px;
+    margin-right: 0;
+  }
+}
+@media (max-width: 767px) {
+  .content-shift-rtl-expanded,
+  .content-shift-rtl-collapsed,
+  .content-shift-ltr-expanded,
+  .content-shift-ltr-collapsed {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}

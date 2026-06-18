@@ -8,7 +8,7 @@ interface HeaderProps {
 }
 
 export default function Header({ onMenuToggle }: HeaderProps) {
-  const { language, setLanguage } = useLanguage()
+  const { language, setLanguage, dir } = useLanguage()
   const [menuOpen, setMenuOpen] = useState(false)
   const [langDropdown, setLangDropdown] = useState(false)
   const [notifDropdown, setNotifDropdown] = useState(false)
@@ -64,7 +64,7 @@ export default function Header({ onMenuToggle }: HeaderProps) {
 
         {/* Notification Dropdown */}
         {notifDropdown && (
-          <div className="absolute top-full right-0 mt-2 bg-apple-gray6 border border-white/[0.08] rounded-lg shadow-lg overflow-hidden z-50 min-w-80">
+          <div className={`absolute top-full mt-2 bg-apple-gray6 border border-white/[0.08] rounded-lg shadow-lg overflow-hidden z-50 min-w-80 ${dir === 'rtl' ? 'left-0' : 'right-0'}`}>
             <div className="p-4 border-b border-white/[0.08]">
               <h3 className="font-bold text-text-primary">Notifications</h3>
             </div>
@@ -73,7 +73,7 @@ export default function Header({ onMenuToggle }: HeaderProps) {
                 <button
                   key={notif.id}
                   onClick={() => setNotifDropdown(false)}
-                  className="w-full px-4 py-3 text-left hover:bg-white/[0.05] transition-colors border-b border-white/[0.06] last:border-b-0"
+                  className="w-full px-4 py-3 text-start hover:bg-white/[0.05] transition-colors border-b border-white/[0.06] last:border-b-0"
                 >
                   <div className="flex items-start gap-3">
                     <div className={`w-2 h-2 rounded-full flex-shrink-0 mt-1.5 ${notif.read ? 'bg-transparent' : 'bg-accent-blue'}`}></div>
@@ -107,7 +107,7 @@ export default function Header({ onMenuToggle }: HeaderProps) {
 
         {/* Profile Dropdown */}
         {profileDropdown && (
-          <div className="absolute top-full right-0 mt-2 bg-apple-gray6 border border-white/[0.08] rounded-lg shadow-lg overflow-hidden z-50 min-w-56">
+          <div className={`absolute top-full mt-2 bg-apple-gray6 border border-white/[0.08] rounded-lg shadow-lg overflow-hidden z-50 min-w-56 ${dir === 'rtl' ? 'left-0' : 'right-0'}`}>
             {/* Profile Header */}
             <div className="p-4 border-b border-white/[0.08] bg-white/[0.02]">
               <div className="flex items-center gap-3">
@@ -128,20 +128,20 @@ export default function Header({ onMenuToggle }: HeaderProps) {
                   navigate('/account')
                   setProfileDropdown(false)
                 }}
-                className="w-full px-4 py-2 text-left flex items-center gap-3 text-text-secondary hover:text-white hover:bg-white/[0.06] transition-colors"
+                className="w-full px-4 py-2 text-start flex items-center gap-3 text-text-secondary hover:text-white hover:bg-white/[0.06] transition-colors"
               >
                 <User size={16} /> Account Settings
               </button>
               <button
                 onClick={() => setProfileDropdown(false)}
-                className="w-full px-4 py-2 text-left flex items-center gap-3 text-text-secondary hover:text-white hover:bg-white/[0.06] transition-colors"
+                className="w-full px-4 py-2 text-start flex items-center gap-3 text-text-secondary hover:text-white hover:bg-white/[0.06] transition-colors"
               >
                 <Settings size={16} /> Preferences
               </button>
             </div>
 
             {/* Logout */}
-            <button className="w-full px-4 py-2 text-left flex items-center gap-3 text-accent-orange hover:bg-accent-orange/10 transition-colors border-t border-white/[0.08]">
+            <button className="w-full px-4 py-2 text-start flex items-center gap-3 text-accent-orange hover:bg-accent-orange/10 transition-colors border-t border-white/[0.08]">
               <LogOut size={16} /> Logout
             </button>
           </div>
@@ -165,7 +165,7 @@ export default function Header({ onMenuToggle }: HeaderProps) {
 
         {/* Language Dropdown Menu */}
         {langDropdown && (
-          <div className="absolute top-full right-0 mt-2 bg-apple-gray6 border border-white/[0.08] rounded-lg shadow-lg overflow-hidden z-50 min-w-48">
+          <div className={`absolute top-full mt-2 bg-apple-gray6 border border-white/[0.08] rounded-lg shadow-lg overflow-hidden z-50 min-w-48 ${dir === 'rtl' ? 'left-0' : 'right-0'}`}>
             {languages.map((lang) => (
               <button
                 key={lang.code}
@@ -173,7 +173,7 @@ export default function Header({ onMenuToggle }: HeaderProps) {
                   setLanguage(lang.code as 'en' | 'ar')
                   setLangDropdown(false)
                 }}
-                className={`w-full px-4 py-3 text-left flex items-center gap-3 transition-all ${
+                className={`w-full px-4 py-3 text-start flex items-center gap-3 transition-all ${
                   language === lang.code
                     ? 'bg-accent-blue/20 text-accent-blue'
                     : 'text-text-secondary hover:text-white hover:bg-white/[0.06]'
