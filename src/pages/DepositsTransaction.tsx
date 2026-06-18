@@ -42,8 +42,21 @@ const PROCESSORS = ['P2P-OnTarget Processor-MW', 'InstaPay Gateway', 'Bank Settl
 const MERCHANTS = ['pr_test_M', 'Ahmed Electronics', 'Cairo Retail', 'Emirates Foods', 'Dubai Trade']
 const CURRENCIES = ['Indian Rupee', 'Egyptian Pound', 'UAE Dirham', 'Saudi Riyal', 'US Dollar']
 
+const mockDeposits = [
+  { merchant: 'pr_test_M', processor: 'P2P-OnTarget Processor-MW', currency: 'Indian Rupee', method: 'UPI', amount: 50000, status: 'approved' },
+  { merchant: 'Ahmed Electronics', processor: 'InstaPay Gateway', currency: 'Egyptian Pound', method: 'QR Code', amount: 15000, status: 'approved' },
+  { merchant: 'Cairo Retail', processor: 'Bank Settlement', currency: 'Egyptian Pound', method: 'Bank Transfer', amount: 120000, status: 'pending' },
+  { merchant: 'Emirates Foods', processor: 'Crypto Bridge', currency: 'UAE Dirham', method: 'Digital Wallet', amount: 45000, status: 'hard_declined' },
+  { merchant: 'Dubai Trade', processor: 'InstaPay Gateway', currency: 'UAE Dirham', method: 'Credit Card', amount: 250000, status: 'approved' },
+  { merchant: 'pr_test_M', processor: 'P2P-OnTarget Processor-MW', currency: 'Indian Rupee', method: 'QR Code', amount: 75000, status: 'soft_declined' },
+  { merchant: 'pr_test_M', processor: 'P2P-OnTarget Processor-MW', currency: 'Indian Rupee', method: 'UPI', amount: 120000, status: 'approved' },
+  { merchant: 'Ahmed Electronics', processor: 'Bank Settlement', currency: 'Saudi Riyal', method: 'IMPS', amount: 95000, status: 'pending' },
+  { merchant: 'Dubai Trade', processor: 'Crypto Bridge', currency: 'US Dollar', method: 'Digital Wallet', amount: 35000, status: 'approved' },
+  { merchant: 'Cairo Retail', processor: 'InstaPay Gateway', currency: 'Egyptian Pound', method: 'Visa', amount: 65000, status: 'soft_declined' },
+]
+
 export default function DepositsTransaction() {
-  const { t, dir } = useLanguage()
+  const { dir } = useLanguage()
 
   // Filters
   const [dateRange, setDateRange] = useState({
@@ -58,13 +71,37 @@ export default function DepositsTransaction() {
   const [showProcessorDropdown, setShowProcessorDropdown] = useState(false)
   const [showPaymentDropdown, setShowPaymentDropdown] = useState(false)
 
-  // Mock data
+  // Calculate stats dynamically
+  const filteredTx = mockDeposits.filter((tx) => {
+    if (selectedMerchants.length > 0 && !selectedMerchants.includes(tx.merchant)) return false
+    if (selectedProcessors.length > 0 && !selectedProcessors.includes(tx.processor)) return false
+    if (selectedPaymentMethods.length > 0 && !selectedPaymentMethods.includes(tx.method)) return false
+    return true
+  })
+
+  const totalCount = filteredTx.length || 1
+  const totalAmount = filteredTx.reduce((sum, tx) => sum + tx.amount, 0) || 1
+
+  const getStatsForStatus = (status: string) => {
+    const txs = filteredTx.filter((t) => t.status === status)
+    const count = txs.length
+    const amount = txs.reduce((sum, t) => sum + t.amount, 0)
+    const ratio_count = parseFloat(((count / totalCount) * 100).toFixed(1))
+    const ratio_volume = parseFloat(((amount / totalAmount) * 100).toFixed(1))
+    return { count, amount, ratio_count, ratio_volume }
+  }
+
   const stats: DepositStats = {
-    approved: { count: 0, amount: 0, ratio_count: 0, ratio_volume: 0 },
-    pending: { count: 0, amount: 0, ratio_count: 0, ratio_volume: 0 },
-    hard_declined: { count: 0, amount: 0, ratio_count: 0, ratio_volume: 0 },
-    soft_declined: { count: 0, amount: 0, ratio_count: 0, ratio_volume: 0 },
-    total: { count: 0, amount: 0, ratio_count: 0, ratio_volume: 0 },
+    approved: getStatsForStatus('approved'),
+    pending: getStatsForStatus('pending'),
+    hard_declined: getStatsForStatus('hard_declined'),
+    soft_declined: getStatsForStatus('soft_declined'),
+    total: {
+      count: filteredTx.length,
+      amount: filteredTx.reduce((sum, tx) => sum + tx.amount, 0),
+      ratio_count: 100,
+      ratio_volume: 100,
+    },
   }
 
   const toggleMerchant = (merchant: string) => {

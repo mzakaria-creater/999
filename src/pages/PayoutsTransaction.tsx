@@ -18,9 +18,20 @@ interface PayoutStats {
 
 const PAYOUT_TYPES = ['Manual', 'Automated', 'Scheduled', 'Both']
 const MERCHANTS = ['pr_test_M', 'Ahmed Electronics', 'Cairo Retail', 'Emirates Foods', 'Dubai Trade']
+const mockTransactions = [
+  { merchant: 'pr_test_M', amount: 150000, type: 'Automated', status: 'approved' },
+  { merchant: 'Ahmed Electronics', amount: 95000, type: 'Manual', status: 'pending' },
+  { merchant: 'Cairo Retail', amount: 120000, type: 'Scheduled', status: 'approved' },
+  { merchant: 'Emirates Foods', amount: 45000, type: 'Automated', status: 'declined' },
+  { merchant: 'Dubai Trade', amount: 320000, type: 'Manual', status: 'in_progress' },
+  { merchant: 'pr_test_M', amount: 250000, type: 'Scheduled', status: 'approved' },
+  { merchant: 'pr_test_M', amount: 50000, type: 'Automated', status: 'pending' },
+  { merchant: 'Ahmed Electronics', amount: 75000, type: 'Manual', status: 'approved' },
+  { merchant: 'Dubai Trade', amount: 180000, type: 'Scheduled', status: 'declined' },
+]
 
 export default function PayoutsTransaction() {
-  const { t, dir } = useLanguage()
+  const { dir } = useLanguage()
 
   // Filters
   const [dateRange, setDateRange] = useState({
@@ -31,13 +42,33 @@ export default function PayoutsTransaction() {
   const [selectedPayoutType, setSelectedPayoutType] = useState('Both')
   const [showMerchantDropdown, setShowMerchantDropdown] = useState(false)
 
-  // Mock data
+  // Calculate stats dynamically
+  const filteredTx = mockTransactions.filter((tx) => {
+    if (selectedMerchants.length > 0 && !selectedMerchants.includes(tx.merchant)) return false
+    if (selectedPayoutType !== 'Both' && tx.type !== selectedPayoutType) return false
+    return true
+  })
+
+  const totalCount = filteredTx.length || 1
+
+  const getStatsForStatus = (status: string) => {
+    const txs = filteredTx.filter((t) => t.status === status)
+    const count = txs.length
+    const amount = txs.reduce((sum, t) => sum + t.amount, 0)
+    const ratio = parseFloat(((count / totalCount) * 100).toFixed(1))
+    return { count, amount, ratio }
+  }
+
   const stats: PayoutStats = {
-    approved: { count: 0, amount: 0, ratio: 0 },
-    pending: { count: 0, amount: 0, ratio: 0 },
-    declined: { count: 0, amount: 0, ratio: 0 },
-    in_progress: { count: 0, amount: 0, ratio: 0 },
-    total: { count: 0, amount: 0, ratio: 0 },
+    approved: getStatsForStatus('approved'),
+    pending: getStatsForStatus('pending'),
+    declined: getStatsForStatus('declined'),
+    in_progress: getStatsForStatus('in_progress'),
+    total: {
+      count: filteredTx.length,
+      amount: filteredTx.reduce((sum, tx) => sum + tx.amount, 0),
+      ratio: 100,
+    },
   }
 
   const toggleMerchant = (merchant: string) => {

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Search, TrendingDown } from 'lucide-react'
+import { Plus, Search } from 'lucide-react'
 import Card from '@components/Card'
 
 const mockPayouts = [
