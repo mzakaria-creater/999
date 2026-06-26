@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import WalletManagementTable from '@components/WalletManagementTable'
 
 export default function Wallets() {

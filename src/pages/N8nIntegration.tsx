@@ -1,9 +1,6 @@
-import { useLanguage } from '@/context/LanguageContext'
 import { Settings, Play, Pause, Plus, ArrowRight } from 'lucide-react'
 
 export default function N8nIntegration() {
-  const { t } = useLanguage()
-
   const workflows = [
     {
       name: 'Payment Webhook Processor',

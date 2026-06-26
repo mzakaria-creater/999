@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Trash2, Edit2, Save, X } from 'lucide-react'
+import { Trash2, Edit2, Save } from 'lucide-react'
 
 interface CostRule {
   id: string

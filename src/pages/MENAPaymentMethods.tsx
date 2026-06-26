@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Globe, TrendingUp, CheckCircle2, AlertCircle, Zap } from 'lucide-react'
+import { Globe, CheckCircle2, AlertCircle } from 'lucide-react'
 
 interface PaymentMethod {
   id: string

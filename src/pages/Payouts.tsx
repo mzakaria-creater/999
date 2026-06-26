@@ -2,7 +2,18 @@ import { useState } from 'react'
 import { Plus, Search } from 'lucide-react'
 import Card from '@components/Card'
 
-const mockPayouts = [
+interface PayoutRecord {
+  id: string
+  recipient: string
+  amount: number
+  currency: string
+  method: string
+  status: 'completed' | 'processing' | 'pending'
+  date: string
+  fee: number
+}
+
+const mockPayouts: PayoutRecord[] = [
   { id: 'PAY-2024-0001', recipient: 'Merchant A', amount: 125000, currency: 'EGP', method: 'Bank Transfer', status: 'completed', date: '2024-03-09', fee: 1875 },
   { id: 'PAY-2024-0002', recipient: 'Merchant B', amount: 85000, currency: 'SAR', method: 'Wallet', status: 'processing', date: '2024-03-09', fee: 1275 },
   { id: 'PAY-2024-0003', recipient: 'Merchant C', amount: 320000, currency: 'EGP', method: 'Bank Transfer', status: 'pending', date: '2024-03-09', fee: 4800 },
@@ -10,8 +21,15 @@ const mockPayouts = [
 ]
 
 export default function Payouts() {
-  const [payouts] = useState(mockPayouts)
+  const [payouts, setPayouts] = useState<PayoutRecord[]>(mockPayouts)
   const [searchTerm, setSearchTerm] = useState('')
+  const [showCreateForm, setShowCreateForm] = useState(false)
+  const [newPayout, setNewPayout] = useState({
+    recipient: '',
+    amount: '',
+    currency: 'EGP',
+    method: 'Bank Transfer',
+  })
 
   const filtered = payouts.filter(p =>
     p.id.includes(searchTerm) || p.recipient.toLowerCase().includes(searchTerm.toLowerCase())
@@ -19,6 +37,34 @@ export default function Payouts() {
 
   const totalPayoutAmount = filtered.reduce((sum, p) => sum + p.amount, 0)
   const totalFees = filtered.reduce((sum, p) => sum + p.fee, 0)
+
+  const handleCreatePayout = () => {
+    const amountValue = Number(newPayout.amount)
+    if (!newPayout.recipient.trim() || !Number.isFinite(amountValue) || amountValue <= 0) {
+      return
+    }
+
+    const fee = Math.round(amountValue * 0.015)
+    const payout: PayoutRecord = {
+      id: `PAY-${new Date().getFullYear()}-${String(payouts.length + 1).padStart(4, '0')}`,
+      recipient: newPayout.recipient.trim(),
+      amount: amountValue,
+      currency: newPayout.currency,
+      method: newPayout.method,
+      status: 'pending',
+      date: new Date().toISOString().slice(0, 10),
+      fee,
+    }
+
+    setPayouts((prev) => [payout, ...prev])
+    setNewPayout({
+      recipient: '',
+      amount: '',
+      currency: 'EGP',
+      method: 'Bank Transfer',
+    })
+    setShowCreateForm(false)
+  }
 
   return (
     <div className="pb-8 px-4 md:px-8 max-w-7xl mx-auto w-full">
@@ -28,11 +74,58 @@ export default function Payouts() {
             <h1 className="font-apple text-4xl font-bold text-text-primary mb-2">Payouts</h1>
             <p className="text-text-secondary">Manage outgoing payments to merchants</p>
           </div>
-          <button className="btn flex items-center gap-2">
+          <button onClick={() => setShowCreateForm((prev) => !prev)} className="btn flex items-center gap-2">
             <Plus size={18} />
-            Create Payout
+            {showCreateForm ? 'Close' : 'Create Payout'}
           </button>
         </div>
+
+        {showCreateForm && (
+          <div className="apple-surface rounded-2xl p-6 space-y-4">
+            <h2 className="section-title text-lg">New Payout</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input
+                type="text"
+                placeholder="Recipient"
+                value={newPayout.recipient}
+                onChange={(e) => setNewPayout((prev) => ({ ...prev, recipient: e.target.value }))}
+                className="input"
+              />
+              <input
+                type="number"
+                placeholder="Amount"
+                value={newPayout.amount}
+                onChange={(e) => setNewPayout((prev) => ({ ...prev, amount: e.target.value }))}
+                className="input"
+              />
+              <select
+                value={newPayout.currency}
+                onChange={(e) => setNewPayout((prev) => ({ ...prev, currency: e.target.value }))}
+                className="input bg-apple-gray5"
+              >
+                <option value="EGP">EGP</option>
+                <option value="SAR">SAR</option>
+                <option value="AED">AED</option>
+                <option value="USD">USD</option>
+              </select>
+              <select
+                value={newPayout.method}
+                onChange={(e) => setNewPayout((prev) => ({ ...prev, method: e.target.value }))}
+                className="input bg-apple-gray5"
+              >
+                <option value="Bank Transfer">Bank Transfer</option>
+                <option value="Wallet">Wallet</option>
+                <option value="ngpay">ngpay</option>
+              </select>
+            </div>
+            <div className="flex justify-end">
+              <button onClick={handleCreatePayout} className="btn flex items-center gap-2">
+                <Plus size={16} />
+                Add Payout
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-6">

@@ -3,10 +3,10 @@ import { MessageCircle, Bell, Settings, Copy, CheckCircle2, AlertCircle } from '
 import { useLanguage } from '@/context/LanguageContext'
 
 export default function TelegramSettings() {
-  const { t, dir } = useLanguage()
+  const { dir } = useLanguage()
   const [telegramConnected, setTelegramConnected] = useState(false)
-  const [userName, setUserName] = useState('')
-  const [userId, setUserId] = useState('')
+  const [userName] = useState('')
+  const [userId] = useState('')
   const [copied, setCopied] = useState(false)
 
   const [notificationSettings, setNotificationSettings] = useState({
@@ -19,8 +19,7 @@ export default function TelegramSettings() {
     failedPayment: true,
   })
 
-  const BOT_TOKEN = process.env.REACT_APP_TELEGRAM_BOT_TOKEN || 'YOUR_BOT_TOKEN'
-  const BOT_USERNAME = process.env.REACT_APP_TELEGRAM_BOT_USERNAME || 'ontarget_psp_bot'
+  const BOT_USERNAME = import.meta.env.VITE_TELEGRAM_BOT_USERNAME || 'ontarget_psp_bot'
 
   const handleCopyBotLink = () => {
     navigator.clipboard.writeText(`https://t.me/${BOT_USERNAME}`)

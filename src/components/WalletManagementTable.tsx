@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { TrendingUp, AlertTriangle, CheckCircle2, XCircle, Activity } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, XCircle, Activity } from 'lucide-react'
 
 interface Wallet {
   id: string
@@ -86,7 +86,7 @@ const mockWallets: Wallet[] = [
 ]
 
 export default function WalletManagementTable() {
-  const [wallets, setWallets] = useState<Wallet[]>(mockWallets)
+  const [wallets] = useState<Wallet[]>(mockWallets)
   const [sortBy, setSortBy] = useState<'health' | 'balance' | 'volume'>('health')
 
   // Sort wallets

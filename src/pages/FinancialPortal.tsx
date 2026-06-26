@@ -1,9 +1,7 @@
 import { useState } from 'react'
 import { Wallet, Landmark, RefreshCcw, Percent, AlertTriangle, ArrowUpRight, TrendingUp, HelpCircle, CheckCircle } from 'lucide-react'
 import Card from '@components/Card'
-import Chart from '@components/Chart'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { useLanguage } from '@/context/LanguageContext'
 
 interface WalletAccount {
   id: string
@@ -37,7 +35,6 @@ const REVENUE_DATA = [
 ]
 
 export default function FinancialPortal() {
-  const { t } = useLanguage()
   const [wallets, setWallets] = useState<WalletAccount[]>([
     { id: 'wa-1', region: 'United Arab Emirates', currency: 'AED', balance: 3540000, threshold: 500000, bankName: 'Mashreq Bank', status: 'healthy' },
     { id: 'wa-2', region: 'Saudi Arabia', currency: 'SAR', balance: 12100000, threshold: 1000000, bankName: 'Saudi National Bank', status: 'healthy' },

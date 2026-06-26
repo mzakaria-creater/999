@@ -1,10 +1,8 @@
-import { useLanguage } from '@/context/LanguageContext'
-import { Activity, RefreshCw, TrendingUp, AlertCircle } from 'lucide-react'
+import { Activity, RefreshCw } from 'lucide-react'
 import { useState } from 'react'
 
 export default function BinanceAPI() {
-  const { t } = useLanguage()
-  const [connected, setConnected] = useState(true)
+  const [connected] = useState(true)
 
   return (
     <div className="p-6 space-y-6">

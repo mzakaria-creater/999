@@ -29,6 +29,7 @@ import BinanceAPI from '@pages/BinanceAPI'
 import SMSReader from '@pages/SMSReader'
 import DepositsTransaction from '@pages/DepositsTransaction'
 import PayoutsTransaction from '@pages/PayoutsTransaction'
+import AutomationRules from '@pages/AutomationRules'
 import TelegramSettings from '@pages/TelegramSettings'
 import MerchantPortal from '@pages/MerchantPortal'
 import AdminPortal from '@pages/AdminPortal'
@@ -69,6 +70,7 @@ export default function App() {
             <Route path="/sms-reader" element={<ProtectedRoute requiredRoles={['admin', 'operator', 'owner']}><SMSReader /></ProtectedRoute>} />
             <Route path="/deposits-transaction" element={<ProtectedRoute requiredRoles={['admin', 'operator', 'financial', 'owner']}><DepositsTransaction /></ProtectedRoute>} />
             <Route path="/payouts-transaction" element={<ProtectedRoute requiredRoles={['admin', 'operator', 'financial', 'owner']}><PayoutsTransaction /></ProtectedRoute>} />
+            <Route path="/automation-rules" element={<ProtectedRoute requiredRoles={['admin', 'operator', 'owner']}><AutomationRules /></ProtectedRoute>} />
             <Route path="/telegram" element={<TelegramSettings />} />
             <Route path="/admin-portal" element={<ProtectedRoute requiredRoles={['admin', 'owner']}><AdminPortal /></ProtectedRoute>} />
             <Route path="/merchant-portal" element={<ProtectedRoute requiredRoles={['merchant', 'admin', 'owner', 'financial', 'operator']}><MerchantPortal /></ProtectedRoute>} />

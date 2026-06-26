@@ -9,6 +9,7 @@ interface PayoutRequest {
   currency: string
   bankName: string
   accountNo: string
+  channel: 'bank' | 'wallet' | 'ngpay'
   timestamp: string
   status: 'pending' | 'approved' | 'rejected'
 }
@@ -25,9 +26,9 @@ interface LiveTransaction {
 
 export default function OperatorPortal() {
   const [payouts, setPayouts] = useState<PayoutRequest[]>([
-    { id: 'PAY-891', merchantId: 'MID-1022', merchantName: 'Cairo Commerce LLC', amount: 45000, currency: 'EGP', bankName: 'National Bank of Egypt', accountNo: '****9021', timestamp: '16:05', status: 'pending' },
-    { id: 'PAY-892', merchantId: 'MID-4011', merchantName: 'Riyadh Retail Group', amount: 125000, currency: 'SAR', bankName: 'Al Rajhi Bank', accountNo: '****1182', timestamp: '16:11', status: 'pending' },
-    { id: 'PAY-893', merchantId: 'MID-2099', merchantName: 'Dubai Fashion Hub', amount: 8400, currency: 'AED', bankName: 'Emirates NBD', accountNo: '****4403', timestamp: '16:14', status: 'pending' }
+    { id: 'PAY-891', merchantId: 'MID-1022', merchantName: 'Cairo Commerce LLC', amount: 45000, currency: 'EGP', bankName: 'National Bank of Egypt', accountNo: '****9021', channel: 'bank', timestamp: '16:05', status: 'pending' },
+    { id: 'PAY-892', merchantId: 'MID-4011', merchantName: 'Riyadh Retail Group', amount: 125000, currency: 'SAR', bankName: 'Al Rajhi Bank', accountNo: '****1182', channel: 'ngpay', timestamp: '16:11', status: 'pending' },
+    { id: 'PAY-893', merchantId: 'MID-2099', merchantName: 'Dubai Fashion Hub', amount: 8400, currency: 'AED', bankName: 'Emirates NBD', accountNo: '****4403', channel: 'wallet', timestamp: '16:14', status: 'pending' }
   ])
 
   const [liveTransactions, setLiveTransactions] = useState<LiveTransaction[]>([
@@ -86,7 +87,7 @@ export default function OperatorPortal() {
   const handleParseSms = () => {
     setIsParsing(true)
     setTimeout(() => {
-      // Very basic regex parsing simulator for demonstration
+      // Very basic regex parsing simulator for incoming SMS payloads
       const amountMatch = smsInput.match(/(?:EGP|NGN|AED|SAR|₦|\$)\s?([\d,]+(?:\.\d+)?)/i) || smsInput.match(/([\d,]+(?:\.\d+)?)\s?(?:EGP|NGN|AED|SAR)/i)
       const refMatch = smsInput.match(/Ref:\s?([A-Za-z0-9-_]+)/i)
       const senderMatch = smsInput.match(/from\s?([A-Za-z0-9 ]+)(?:Ref|ALERT|\.)/i)
@@ -139,6 +140,16 @@ export default function OperatorPortal() {
       }
       return p
     }))
+  }
+
+  const handleNgpayDecision = (id: string, action: 'test' | 'approve' | 'reject') => {
+    if (action === 'test') {
+      setCreditResult(`ngpay rule test passed for payout ${id}`)
+      return
+    }
+
+    handlePayoutDecision(id, action === 'approve' ? 'approve' : 'reject')
+    setCreditResult(action === 'approve' ? `ngpay approval completed for payout ${id}` : `ngpay payout rejected for ${id}`)
   }
 
   const handleWeightChange = (id: string, newWeight: number) => {
@@ -368,6 +379,7 @@ export default function OperatorPortal() {
                       <div>
                         <span className="text-[10px] font-mono text-accent-blue bg-accent-blue/10 px-2 py-0.5 rounded uppercase">{pay.id}</span>
                         <h4 className="text-sm font-bold text-white mt-1.5">{pay.merchantName}</h4>
+                        <p className="text-[10px] text-text-secondary mt-1 uppercase tracking-wider">Channel: {pay.channel}</p>
                       </div>
                       <div className="text-right">
                         <p className="text-sm font-bold text-white">{pay.currency} {pay.amount.toLocaleString()}</p>
@@ -388,18 +400,35 @@ export default function OperatorPortal() {
 
                     {pay.status === 'pending' ? (
                       <div className="flex gap-2 justify-end pt-1">
+                        {pay.channel === 'ngpay' && (
+                          <button 
+                            onClick={() => handleNgpayDecision(pay.id, 'test')}
+                            className="px-3 py-1.5 bg-white/[0.04] text-text-primary border border-white/[0.08] rounded-lg hover:bg-white/[0.08] transition-all text-xs font-semibold flex items-center gap-1"
+                          >
+                            <Settings size={12} /> Test ngpay
+                          </button>
+                        )}
                         <button 
                           onClick={() => handlePayoutDecision(pay.id, 'reject')}
                           className="px-3 py-1.5 bg-accent-red/10 text-accent-red border border-accent-red/20 rounded-lg hover:bg-accent-red/25 transition-all text-xs font-semibold flex items-center gap-1"
                         >
                           <X size={12} /> Reject
                         </button>
-                        <button 
-                          onClick={() => handlePayoutDecision(pay.id, 'approve')}
-                          className="px-3 py-1.5 bg-accent-green/10 text-accent-green border border-accent-green/20 rounded-lg hover:bg-accent-green/25 transition-all text-xs font-semibold flex items-center gap-1"
-                        >
-                          <Check size={12} /> Approve
-                        </button>
+                        {pay.channel === 'ngpay' ? (
+                          <button 
+                            onClick={() => handleNgpayDecision(pay.id, 'approve')}
+                            className="px-3 py-1.5 bg-accent-green/10 text-accent-green border border-accent-green/20 rounded-lg hover:bg-accent-green/25 transition-all text-xs font-semibold flex items-center gap-1"
+                          >
+                            <Check size={12} /> Approve via ngpay
+                          </button>
+                        ) : (
+                          <button 
+                            onClick={() => handlePayoutDecision(pay.id, 'approve')}
+                            className="px-3 py-1.5 bg-accent-green/10 text-accent-green border border-accent-green/20 rounded-lg hover:bg-accent-green/25 transition-all text-xs font-semibold flex items-center gap-1"
+                          >
+                            <Check size={12} /> Approve
+                          </button>
+                        )}
                       </div>
                     ) : (
                       <div className="flex justify-end pt-1">

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Globe, TrendingUp, Activity, AlertCircle, CheckCircle2, Zap, MapPin, Users } from 'lucide-react'
+import { useState } from 'react'
+import { Globe, TrendingUp, Activity, AlertCircle, CheckCircle2, Zap } from 'lucide-react'
 
 interface RegionalMetrics {
   country: string
@@ -22,7 +22,7 @@ interface TransactionFeed {
 }
 
 export default function MerchantCommandCenter() {
-  const [regionalMetrics, setRegionalMetrics] = useState<RegionalMetrics[]>([
+  const [regionalMetrics] = useState<RegionalMetrics[]>([
     {
       country: 'Egypt',
       volume: 45200000,
@@ -52,7 +52,7 @@ export default function MerchantCommandCenter() {
     },
   ])
 
-  const [transactionFeed, setTransactionFeed] = useState<TransactionFeed[]>([
+  const [transactionFeed] = useState<TransactionFeed[]>([
     {
       id: 'TXN-001',
       merchant: 'Ahmed Electronics',

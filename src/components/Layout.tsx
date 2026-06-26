@@ -1,4 +1,4 @@
-import { Outlet, useNavigate, useLocation } from 'react-router-dom'
+import { Outlet, useNavigate } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Header from './Header'
 import { useState } from 'react'
@@ -12,7 +12,6 @@ export default function Layout() {
   const { dir } = useLanguage()
   const { user, switchRole } = useAuth()
   const navigate = useNavigate()
-  const location = useLocation()
   const [isSwitcherOpen, setIsSwitcherOpen] = useState(true)
 
   const rolesList: { role: UserRole; label: string; path: string; icon: any; color: string }[] = [

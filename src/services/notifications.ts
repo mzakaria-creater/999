@@ -64,7 +64,7 @@ Status: **${notification.status.charAt(0).toUpperCase() + notification.status.sl
               },
               {
                 text: '🔗 Track Payment',
-                url: `${process.env.REACT_APP_PAYMENT_TRACKING_URL}/${notification.transactionId}`,
+                url: `${import.meta.env.VITE_PAYMENT_TRACKING_URL || 'https://track.ontarget-egy.com'}/${notification.transactionId}`,
               },
             ],
             notification.receiptUrl
@@ -217,7 +217,7 @@ Thank you for using OnTarget PSP!
    * Handle callback queries (button clicks)
    * Process user actions from inline buttons
    */
-  processCallbackQuery(queryId: string, data: string): void {
+  processCallbackQuery(_queryId: string, data: string): void {
     if (data.startsWith('txn_')) {
       const transactionId = data.slice(4)
       console.log(`User viewing transaction: ${transactionId}`)

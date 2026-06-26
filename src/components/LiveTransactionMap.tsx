@@ -1,5 +1,5 @@
-import { useState, useCallback, useEffect } from 'react'
-import { AlertCircle, CheckCircle2, Clock, MapPin, TrendingUp, Activity } from 'lucide-react'
+import { useState } from 'react'
+import { AlertCircle, CheckCircle2, Clock, MapPin, Activity } from 'lucide-react'
 
 interface Transaction {
   id: string
@@ -17,17 +17,8 @@ interface Transaction {
   type: 'deposit' | 'withdrawal' | 'payout'
 }
 
-interface MapMarker {
-  id: string
-  lat: number
-  lng: number
-  title: string
-  amount: number
-  status: 'success' | 'pending' | 'failed'
-}
-
 export default function LiveTransactionMap() {
-  const [transactions, setTransactions] = useState<Transaction[]>([
+  const [transactions] = useState<Transaction[]>([
     {
       id: 'TXN-001',
       merchant: 'Ahmed Electronics',
@@ -81,9 +72,6 @@ export default function LiveTransactionMap() {
   ])
 
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(transactions[0])
-  const [mapCenter, setMapCenter] = useState({ lat: 26, lng: 45 })
-  const [zoom, setZoom] = useState(4)
-
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'success':
@@ -125,8 +113,6 @@ export default function LiveTransactionMap() {
 
   const handleTransactionClick = (txn: Transaction) => {
     setSelectedTransaction(txn)
-    setMapCenter({ lat: txn.location.lat, lng: txn.location.lng })
-    setZoom(12)
   }
 
   const stats = {

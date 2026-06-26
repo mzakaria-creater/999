@@ -1,7 +1,6 @@
 import { useState } from 'react'
-import { Landmark, TrendingUp, Users, Target, HelpCircle, AlertTriangle, ShieldCheck, ChevronRight, BarChart3 } from 'lucide-react'
+import { Landmark, TrendingUp, Users, Target, AlertTriangle, ShieldCheck, BarChart3 } from 'lucide-react'
 import Card from '@components/Card'
-import { useLanguage } from '@/context/LanguageContext'
 
 interface MerchantLeaderboard {
   name: string
@@ -20,8 +19,6 @@ interface CountryRisk {
 }
 
 export default function OwnerPortal() {
-  const { t } = useLanguage()
-  
   // Growth simulation states
   const [targetVolume, setTargetVolume] = useState(15) // In Millions USD
   const [feeRate, setFeeRate] = useState(2.2) // Percentage charged to merchant

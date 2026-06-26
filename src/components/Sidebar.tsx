@@ -89,6 +89,7 @@ const navGroups: NavGroup[] = [
     name: 'Integration',
     items: [
       { path: '/n8n', label: 'n8n', Icon: Workflow, requiredRoles: ['admin', 'operator', 'owner'] },
+      { path: '/automation-rules', label: 'Automation Rules', Icon: Workflow, requiredRoles: ['admin', 'operator', 'owner'] },
       { path: '/binance', label: 'Binance', Icon: TrendingUp, requiredRoles: ['admin', 'operator', 'owner'] },
       { path: '/sms-reader', label: 'SMS Reader', Icon: MessageSquare, requiredRoles: ['admin', 'operator', 'owner'] },
       { path: '/telegram', label: 'Telegram', Icon: Send, requiredRoles: ['admin', 'operator', 'merchant', 'financial', 'owner', 'viewer'] },

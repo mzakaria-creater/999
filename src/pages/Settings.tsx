@@ -3,7 +3,7 @@ import { useAuth } from '@/context/AuthContext'
 
 export default function Settings() {
   const { user, switchRole } = useAuth()
-  const [settings, setSettings] = useState({
+  const [settings] = useState({
     apiKey: '••••••••••••••••••',
     webhookUrl: 'https://your-domain.com/webhooks',
     timezone: 'UTC',

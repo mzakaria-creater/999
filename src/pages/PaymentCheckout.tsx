@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import { Copy, CheckCircle2, AlertCircle, Upload, Clock, QrCode, Zap } from 'lucide-react'
+import { Copy, CheckCircle2, Upload, Clock, QrCode, Zap } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
 import { WalletAccount } from '@/types/wallet'
-import { INITIAL_WALLETS, AVAILABLE_CHANNELS, getWalletCost } from '@/data/wallets'
+import { INITIAL_WALLETS, getWalletCost } from '@/data/wallets'
 
 interface Provider {
   id: string
@@ -77,7 +77,7 @@ const getProviderIcon = (provider: string): string => {
 }
 
 export default function PaymentCheckout() {
-  const { t, language, dir } = useLanguage()
+  const { dir } = useLanguage()
   const [transactionType, setTransactionType] = useState<'deposit' | 'payout'>('deposit')
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(providers[0])
   const [selectedWallet, setSelectedWallet] = useState<WalletAccount | null>(INITIAL_WALLETS[0])
@@ -223,9 +223,9 @@ export default function PaymentCheckout() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between p-4 bg-white/[0.03] rounded-xl">
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl">{selectedWallet?.icon}</span>
+                      <span className="text-2xl">💼</span>
                       <div>
-                        <p className="font-semibold text-text-primary">{selectedWallet?.name}</p>
+                        <p className="font-semibold text-text-primary">{selectedWallet?.label || selectedWallet?.owner_name || selectedWallet?.provider}</p>
                         <p className="text-xs text-text-secondary">Deducted</p>
                       </div>
                     </div>

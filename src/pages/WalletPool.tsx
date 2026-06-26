@@ -1,9 +1,6 @@
-import { useLanguage } from '@/context/LanguageContext'
 import { Plus, Zap, TrendingUp, AlertCircle } from 'lucide-react'
 
 export default function WalletPool() {
-  const { t } = useLanguage()
-
   const pools = [
     { name: 'Main MENA Pool', balance: 2850000, capacity: 5000000, health: 'healthy', providers: 4 },
     { name: 'Egypt Operations', balance: 1200000, capacity: 2000000, health: 'healthy', providers: 3 },

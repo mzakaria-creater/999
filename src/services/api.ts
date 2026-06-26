@@ -1,7 +1,7 @@
 // API Service - Real Backend Integration
 // Update API_BASE_URL to your actual backend
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api'
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
 
 interface RequestOptions extends RequestInit {
   headers?: Record<string, string>
@@ -32,7 +32,7 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
 
 export const api = {
   // Transactions
-  getTransactions: (filters?: any) =>
+  getTransactions: (_filters?: any) =>
     request('/transactions', { method: 'GET' }),
 
   getTransaction: (id: string) =>

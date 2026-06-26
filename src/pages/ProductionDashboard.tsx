@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { MapPin, Zap, Shield, TrendingUp, Activity, BarChart3, AlertCircle, CheckCircle2, Gauge } from 'lucide-react'
+import { Zap, Shield, TrendingUp, Activity, CheckCircle2, Gauge, MapPin } from 'lucide-react'
 
 interface LiveTerminal {
   id: string
@@ -20,7 +20,7 @@ interface GatewayStatus {
 }
 
 export default function ProductionDashboard() {
-  const [liveTerminals, setLiveTerminals] = useState<LiveTerminal[]>([
+  const [liveTerminals] = useState<LiveTerminal[]>([
     {
       id: 'TRM-A1',
       gateway: 'Vodafone',
@@ -84,21 +84,6 @@ export default function ProductionDashboard() {
         return 'text-accent-red'
       default:
         return 'text-text-secondary'
-    }
-  }
-
-  const getStatusBg = (status: string) => {
-    switch (status) {
-      case 'settlement':
-        return 'bg-accent-green/10'
-      case 'auth':
-        return 'bg-accent-blue/10'
-      case 'confirmed':
-        return 'bg-accent-green/10'
-      case 'failed':
-        return 'bg-accent-red/10'
-      default:
-        return 'bg-white/5'
     }
   }
 

@@ -1,4 +1,4 @@
-import { Wallet, WalletHealth, AllocationStrategy } from '@/types/wallet'
+import { Wallet, AllocationStrategy } from '@/types/wallet'
 
 export interface TransactionRequest {
   merchant_id: string
@@ -167,9 +167,9 @@ class WalletEngine {
    * Allocate transaction across multiple wallets using specified strategy
    */
   async allocateAcrossWallets(
-    merchant_id: string,
+    _merchant_id: string,
     amount: number,
-    currency: string,
+    _currency: string,
     strategy: AllocationStrategy = 'weighted'
   ): Promise<AllocationResult[]> {
     const allocations: AllocationResult[] = []
@@ -192,7 +192,7 @@ class WalletEngine {
     }
 
     // Store allocation for tracking
-    this.allocations.set(merchant_id, allocations)
+    this.allocations.set(_merchant_id, allocations)
 
     return allocations
   }
@@ -307,7 +307,7 @@ class WalletEngine {
    * Rebalance wallets to target levels
    */
   async rebalanceWallets(
-    merchant_id: string,
+    _merchant_id: string,
     targetLevels: Record<string, number>
   ): Promise<RebalanceAction[]> {
     const actions: RebalanceAction[] = []
@@ -346,6 +346,7 @@ class WalletEngine {
    * Get health status for a specific merchant's wallets
    */
   async getWalletHealth(merchant_id: string): Promise<WalletHealthStatus[]> {
+    void merchant_id
     return this.wallets.map((wallet) => {
       const balanceRatio = wallet.balance / wallet.daily_limit
       const balanceHealth = Math.round(Math.min(balanceRatio * 100, 100))

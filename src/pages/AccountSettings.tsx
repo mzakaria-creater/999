@@ -1,9 +1,7 @@
-import { useLanguage } from '@/context/LanguageContext'
-import { User, Lock, Bell, Shield, LogOut } from 'lucide-react'
+import { User, Lock, Bell, Shield } from 'lucide-react'
 import { useState } from 'react'
 
 export default function AccountSettings() {
-  const { t, language } = useLanguage()
   const [activeTab, setActiveTab] = useState('profile')
 
   const tabs = [

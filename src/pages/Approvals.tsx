@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { CheckCircle2, XCircle, Clock } from 'lucide-react'
+import { CheckCircle2, XCircle } from 'lucide-react'
 import Card from '@components/Card'
 
 const mockApprovals = [

@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Zap, TrendingUp, Activity } from 'lucide-react'
 
 interface GlossyCardProps {
   title: string

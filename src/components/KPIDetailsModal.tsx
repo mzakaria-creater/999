@@ -1,4 +1,4 @@
-import { X, TrendingUp, TrendingDown, Activity, AlertCircle } from 'lucide-react'
+import { X, TrendingUp, TrendingDown } from 'lucide-react'
 
 export interface KPIDetail {
   title: string

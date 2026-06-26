@@ -17,7 +17,7 @@ export default function MenaGateway() {
       headerPartners: 'الشركاء',
       headerContact: 'تواصل معنا',
       startNow: 'ابدأ الآن',
-      demo: 'طلب عرض توضيحي',
+      access: 'طلب الوصول',
       learnMore: 'اعرف أكثر',
       servicesTitle: 'خدماتنا الرئيسية',
       servicesSubtitle: 'حلول متكاملة مصممة خصيصاً لسوق الشرق الأوسط وشمال أفريقيا',
@@ -99,7 +99,7 @@ export default function MenaGateway() {
       headerPartners: 'Partners',
       headerContact: 'Contact Us',
       startNow: 'Start Now',
-      demo: 'Request Demo',
+      access: 'Request Access',
       learnMore: 'Learn More',
       servicesTitle: 'Our Core Services',
       servicesSubtitle: 'Integrated solutions tailored for the MENA market',
@@ -108,7 +108,7 @@ export default function MenaGateway() {
       partnersSubtitle: 'We work with top services and financial institutions to ensure full coverage',
       ctaTitle: 'Ready to Scale Your Business?',
       ctaSubtitle: 'Join thousands of businesses that trust Unified Gateway to achieve their financial goals.',
-      ctaButton: 'Request Free Demo',
+      ctaButton: 'Request Access',
       footerAbout: 'About Gateway',
       footerAboutDesc: 'A leading payment platform in the MENA region providing customized, integrated solutions for enterprises and startups.',
       footerRights: 'All rights reserved.',
@@ -201,7 +201,7 @@ export default function MenaGateway() {
 
           <div className="flex flex-wrap gap-4 justify-center pt-4">
             <button className="btn px-8 py-3.5 text-base font-bold shadow-lg transform active:scale-95 transition-transform">
-              {content.demo}
+              {content.access}
             </button>
             <button className="btn-secondary px-8 py-3.5 text-base font-bold bg-white/[0.04] text-white hover:bg-white/[0.08] border border-white/[0.1] rounded-xl transform active:scale-95 transition-all">
               {content.learnMore}

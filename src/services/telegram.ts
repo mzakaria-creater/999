@@ -8,81 +8,10 @@
  * Supports guest mode, polls with media, live photos, and bot-to-bot communication
  */
 
-const TELEGRAM_API_URL = process.env.REACT_APP_TELEGRAM_BOT_TOKEN
-  ? `https://api.telegram.org/bot${process.env.REACT_APP_TELEGRAM_BOT_TOKEN}`
+const TELEGRAM_BOT_TOKEN = import.meta.env.VITE_TELEGRAM_BOT_TOKEN
+const TELEGRAM_API_URL = TELEGRAM_BOT_TOKEN
+  ? `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`
   : 'http://localhost:8081/bot'
-
-interface TelegramUser {
-  id: number
-  is_bot: boolean
-  first_name: string
-  username?: string
-  supports_guest_queries?: boolean
-}
-
-interface TelegramMessage {
-  message_id: number
-  from?: TelegramUser
-  date: number
-  chat: {
-    id: number
-    type: string
-    title?: string
-    username?: string
-  }
-  text?: string
-  guest_bot_caller_user?: TelegramUser
-  guest_bot_caller_chat?: { id: number }
-  guest_query_id?: string
-}
-
-interface PollOption {
-  text: string
-  voter_count: number
-  media?: {
-    type: 'photo' | 'video'
-    file_id: string
-  }
-}
-
-interface TelegramPoll {
-  id: string
-  question: string
-  options: PollOption[]
-  total_voter_count: number
-  is_closed: boolean
-  is_anonymous: boolean
-  type: 'regular' | 'quiz'
-  allows_multiple_answers: boolean
-  media?: {
-    type: 'photo' | 'video'
-    file_id: string
-  }
-  explanation_media?: {
-    type: 'photo' | 'video'
-    file_id: string
-  }
-  members_only?: boolean
-  country_codes?: string[]
-}
-
-interface LivePhoto {
-  photo: {
-    file_id: string
-    file_unique_id: string
-    width: number
-    height: number
-    file_size: number
-  }
-  video: {
-    file_id: string
-    file_unique_id: string
-    width: number
-    height: number
-    duration: number
-    file_size: number
-  }
-}
 
 export const telegramAPI = {
   // User Management
@@ -217,7 +146,7 @@ export const telegramAPI = {
   },
 
   // Internal API call helper
-  private async _apiCall(method: string, params: any) {
+  async _apiCall(method: string, params: any) {
     try {
       const response = await fetch(`${TELEGRAM_API_URL}/${method}`, {
         method: 'POST',

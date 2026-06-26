@@ -1,9 +1,7 @@
-import { useLanguage } from '@/context/LanguageContext'
-import { Lock, Key, Unlock, Eye, EyeOff } from 'lucide-react'
+import { Lock, Key, Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
 
 export default function Vault() {
-  const { t } = useLanguage()
   const [showSecrets, setShowSecrets] = useState(false)
 
   const secrets = [

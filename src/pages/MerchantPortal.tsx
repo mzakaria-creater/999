@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Copy, Download, Mail, Filter, ChevronLeft, ChevronRight, Eye, EyeOff, TrendingUp, CheckCircle2, AlertCircle, Clock } from 'lucide-react'
+import { Copy, Download, Mail, Filter, ChevronLeft, ChevronRight, Eye, EyeOff } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
 
 interface Transaction {
@@ -79,7 +79,7 @@ const MOCK_TRANSACTIONS: Transaction[] = [
 ]
 
 export default function MerchantPortal() {
-  const { t, dir } = useLanguage()
+  const { dir } = useLanguage()
   const [activeTab, setActiveTab] = useState<'overview' | 'transactions' | 'reports'>('overview')
   const [showApiKey, setShowApiKey] = useState(false)
   const [copied, setCopied] = useState('')

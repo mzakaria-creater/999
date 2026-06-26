@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { TrendingUp, AlertCircle, CheckCircle2, Clock, Wallet, Activity, RefreshCw } from 'lucide-react'
 import Card from '@components/Card'
 import Chart from '@components/Chart'
@@ -7,6 +7,8 @@ import WalletManagementTable from '@components/WalletManagementTable'
 import MultiWalletCheckout from '@components/MultiWalletCheckout'
 import MultiWalletEngine from '@components/MultiWalletEngine'
 import KPIDetailsModal, { KPIDetail } from '@components/KPIDetailsModal'
+import TransactionFlow3D from '@components/3D/TransactionFlow3D'
+import IPhone3DMockup from '@components/3D/iPhone3DMockup'
 import api from '@/services/api'
 import { useFetch } from '@/hooks/useFetch'
 
@@ -361,7 +363,7 @@ export default function Dashboard() {
         {/* 3D iPhone Mockup */}
         <div className="animate-slide-down" style={{ animationDelay: '0.18s' }}>
           <h2 className="section-title">Mobile Experience</h2>
-          <iPhone3DMockup />
+          <IPhone3DMockup />
         </div>
 
         {/* Multi-Wallet Portfolio */}
@@ -375,10 +377,10 @@ export default function Dashboard() {
           <MultiWalletEngine />
         </div>
 
-        {/* Multi-Wallet Checkout Demo */}
+        {/* Multi-Wallet Checkout */}
         {showCheckout && (
           <div className="animate-slide-down" style={{ animationDelay: '0.25s' }}>
-            <h2 className="section-title">Multi-Wallet Payment Demo</h2>
+            <h2 className="section-title">Multi-Wallet Payment</h2>
             <div className="apple-surface rounded-2xl p-8">
               <MultiWalletCheckout
                 amount={50000}

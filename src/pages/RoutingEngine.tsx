@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Zap, Activity, TrendingUp, AlertCircle, CheckCircle2, Brain, Route, BarChart3 } from 'lucide-react'
+import { useState } from 'react'
+import { Zap, Activity, TrendingUp, CheckCircle2, Brain, Route, BarChart3 } from 'lucide-react'
 
 interface ProviderMetrics {
   name: string
@@ -29,7 +29,7 @@ interface RoutingPath {
 }
 
 export default function RoutingEngine() {
-  const [providers, setProviders] = useState<ProviderMetrics[]>([
+  const [providers] = useState<ProviderMetrics[]>([
     {
       name: 'Vodafone Cash',
       icon: '📱',
@@ -72,7 +72,7 @@ export default function RoutingEngine() {
     },
   ])
 
-  const [routingPaths, setRoutingPaths] = useState<RoutingPath[]>([
+  const [routingPaths] = useState<RoutingPath[]>([
     {
       id: 'ROUTE-001',
       merchant: 'Ahmed Electronics',
@@ -153,19 +153,6 @@ export default function RoutingEngine() {
         return 'bg-accent-orange/10 text-accent-orange border-accent-orange/30'
       default:
         return ''
-    }
-  }
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'optimized':
-        return <CheckCircle2 size={16} className="text-accent-green" />
-      case 'routed':
-        return <Route size={16} className="text-accent-blue" />
-      case 'failover':
-        return <AlertCircle size={16} className="text-accent-orange" />
-      default:
-        return null
     }
   }
 

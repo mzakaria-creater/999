@@ -30,7 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isActive: true,
   })
 
-  const login = (email: string, password: string, role: UserRole) => {
+  const login = (email: string, _password: string, role: UserRole) => {
     setUser({
       id: Math.random().toString(),
       name: email.split('@')[0],

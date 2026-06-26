@@ -27,7 +27,7 @@ export default function MultiWalletCheckout({
   onConfirm,
 }: CheckoutProps) {
   const [selectedWallet, setSelectedWallet] = useState<string>('')
-  const [wallets, setWallets] = useState<WalletOption[]>([
+  const [wallets] = useState<WalletOption[]>([
     {
       id: 'vodafone-egypt',
       provider: 'Vodafone Cash',
@@ -74,15 +74,6 @@ export default function MultiWalletCheckout({
   const remainingDaily = selected ? selected.dailyLimit - selected.dailyUsed : 0
   const availableBalance = selected ? selected.balance : 0
   const canProcess = availableBalance >= amount && remainingDaily >= amount
-
-  const getProviderColor = (provider: string) => {
-    const colors: Record<string, string> = {
-      'Vodafone Cash': 'from-red-500/20 to-red-500/10 border-red-500/30',
-      InstaPay: 'from-blue-500/20 to-blue-500/10 border-blue-500/30',
-      'Commercial Bank': 'from-green-500/20 to-green-500/10 border-green-500/30',
-    }
-    return colors[provider] || 'from-gray-500/20 to-gray-500/10 border-gray-500/30'
-  }
 
   const getHealthColor = (score: number) => {
     if (score >= 95) return 'text-accent-green'
